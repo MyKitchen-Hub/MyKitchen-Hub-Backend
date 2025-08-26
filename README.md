@@ -105,9 +105,9 @@ MyKitchen Hub is a Spring Boot application that helps users optimize their cooki
 
 #### **DevOps & Deployment**
 
-- [ ] Docker configuration
-- [ ] GitHub Actions CI/CD
-- [ ] Conventional commits
+- [x] Docker configuration
+- [x] GitHub Actions CI/CD
+- [x] Conventional commits
 - [ ] Production deployment setup
 
 ## 🏗️ **Architecture & Technology Stack**
