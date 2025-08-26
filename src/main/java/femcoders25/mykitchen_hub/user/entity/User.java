@@ -1,5 +1,6 @@
 package femcoders25.mykitchen_hub.user.entity;
 
+import femcoders25.mykitchen_hub.recipe.entity.Recipe;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -44,6 +45,9 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role= Role.USER;
+
+    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
+    private List<Recipe> recipes;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
