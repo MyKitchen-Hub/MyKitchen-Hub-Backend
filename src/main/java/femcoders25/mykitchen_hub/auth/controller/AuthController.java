@@ -43,8 +43,12 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<String>> logout() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        
+        if (authentication == null || authentication.getName() == null || "anonymousUser".equals(authentication.getName())) {
+            return ResponseEntity.status(401).body(ApiResponse.error("Authentication required"));
+        }
+        
         String username = authentication.getName();
-
         log.info("Logout request for user: {}", username);
         authenticationService.logout(username);
 

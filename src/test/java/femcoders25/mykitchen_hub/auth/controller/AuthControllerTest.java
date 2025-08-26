@@ -10,13 +10,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -141,21 +146,39 @@ class AuthControllerTest {
 
         @Test
         void logout_Success() throws Exception {
-                mockMvc.perform(post("/api/auth/logout")
-                                .header("Authorization", "Bearer " + jwtToken))
-                                .andExpect(status().isOk())
-                                .andExpect(jsonPath("$.success").value(true))
-                                .andExpect(jsonPath("$.message").value("User logged out successfully"))
-                                .andExpect(jsonPath("$.data").value("Logout successful"));
+                try (MockedStatic<SecurityContextHolder> mockedSecurityContext = mockStatic(
+                                SecurityContextHolder.class)) {
+                        Authentication mockAuth = mock(Authentication.class);
+                        when(mockAuth.getName()).thenReturn("testuser");
 
-                verify(authenticationService).logout(anyString());
+                        SecurityContext mockContext = mock(SecurityContext.class);
+                        when(mockContext.getAuthentication()).thenReturn(mockAuth);
+                        mockedSecurityContext.when(SecurityContextHolder::getContext).thenReturn(mockContext);
+
+                        mockMvc.perform(post("/api/auth/logout"))
+                                        .andExpect(status().isOk())
+                                        .andExpect(jsonPath("$.success").value(true))
+                                        .andExpect(jsonPath("$.message").value("User logged out successfully"))
+                                        .andExpect(jsonPath("$.data").value("Logout successful"));
+
+                        verify(authenticationService).logout("testuser");
+                }
         }
 
         @Test
         void logout_WithoutAuthentication_ReturnsUnauthorized() throws Exception {
-                mockMvc.perform(post("/api/auth/logout"))
-                                .andExpect(status().isUnauthorized());
+                try (MockedStatic<SecurityContextHolder> mockedSecurityContext = mockStatic(
+                                SecurityContextHolder.class)) {
+                        SecurityContext mockContext = mock(SecurityContext.class);
+                        when(mockContext.getAuthentication()).thenReturn(null);
+                        mockedSecurityContext.when(SecurityContextHolder::getContext).thenReturn(mockContext);
 
-                verify(authenticationService, never()).logout(anyString());
+                        mockMvc.perform(post("/api/auth/logout"))
+                                        .andExpect(status().isUnauthorized())
+                                        .andExpect(jsonPath("$.success").value(false))
+                                        .andExpect(jsonPath("$.message").value("Authentication required"));
+
+                        verify(authenticationService, never()).logout(anyString());
+                }
         }
 }
