@@ -22,7 +22,14 @@ jobs:
           distribution: "temurin"
 
       - name: Run tests
-        run: mvn test
+        run: mvn test -Dspring.profiles.active=test
+        env:
+          DB_URL: jdbc:h2:mem:testdb
+          DB_USERNAME: sa
+          DB_PASSWORD:
+          SERVER_PORT: 8080
+          EMAIL: test@example.com
+          EMAIL_PASSWORD: testpass
 
       - name: Build application
         run: mvn clean package -DskipTests
