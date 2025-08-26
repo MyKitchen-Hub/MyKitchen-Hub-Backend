@@ -12,15 +12,4 @@ public record UserResponseDto(
         Role role,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
-) {
-    public static UserResponseDto from(User user){
-        return new UserResponseDto(
-                user.getId(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getRole(),
-                user.getCreatedAt(),
-                user.getUpdatedAt()
-        );
-    }
-}
+) {}

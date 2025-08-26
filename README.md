@@ -76,11 +76,11 @@ MyKitchen Hub is a Spring Boot application that helps users optimize their cooki
 
 #### **Authentication & Security**
 
-- [ ] JWT token generation and validation
-- [ ] Authentication service
-- [ ] Security configuration
-- [ ] Password encoding
-- [ ] Login/logout endpoints
+- [x] JWT token generation and validation
+- [x] Authentication service
+- [x] Security configuration
+- [x] Password encoding
+- [x] Login/logout endpoints
 
 #### **Social Features**
 
