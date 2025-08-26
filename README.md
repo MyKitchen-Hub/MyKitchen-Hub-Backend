@@ -68,7 +68,7 @@ MyKitchen Hub is a Spring Boot application that helps users optimize their cooki
 
 #### **Shopping List System**
 
-- [ ] Shopping list entity
+- [x] Shopping list entity
 - [ ] Automatic shopping list generation
 - [ ] Ingredient consolidation logic
 - [ ] Shopping list service
