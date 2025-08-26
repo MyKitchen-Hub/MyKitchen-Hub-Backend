@@ -63,4 +63,14 @@ public class Recipe {
         updatedAt = LocalDateTime.now();
     }
 
+    public void addIngredient(Ingredient ingredient){
+        ingredients.add(ingredient);
+        ingredient.setRecipe(this);
+    }
+
+    public void removeIngredient(Ingredient ingredient){
+        ingredients.remove(ingredient);
+        ingredient.setRecipe(null);
+    }
+
 }
