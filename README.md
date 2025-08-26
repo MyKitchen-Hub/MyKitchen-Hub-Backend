@@ -52,8 +52,8 @@ MyKitchen Hub is a Spring Boot application that helps users optimize their cooki
 - [x] Database schema configuration
 - [x] Data initialization setup
 - [x] JPA configuration with Hibernate
-- [ ] Recipe entity and relationships
-- [ ] Ingredient entity and relationships
+- [x] Recipe entity and relationships
+- [x] Ingredient entity and relationships
 - [ ] Comment entity and relationships
 - [ ] Shopping list entity and relationships
 
@@ -61,7 +61,7 @@ MyKitchen Hub is a Spring Boot application that helps users optimize their cooki
 
 - [ ] Recipe entity with CRUD operations
 - [ ] Ingredient entity and management
-- [ ] Recipe-ingredient relationships
+- [x] Recipe-ingredient relationships
 - [ ] Recipe service layer
 - [ ] Recipe controller with REST endpoints
 - [ ] Recipe search and filtering

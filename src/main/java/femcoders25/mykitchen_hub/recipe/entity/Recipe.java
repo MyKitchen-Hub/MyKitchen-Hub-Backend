@@ -1,5 +1,6 @@
 package femcoders25.mykitchen_hub.recipe.entity;
 
+import femcoders25.mykitchen_hub.ingredient.entity.Ingredient;
 import femcoders25.mykitchen_hub.user.entity.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -9,6 +10,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -29,6 +32,9 @@ public class Recipe {
     @Size(min= 10, max= 1000, message = "Description must be between 10 and 1000 characters")
     @Column(columnDefinition = "TEXT",nullable = false)
     private String description;
+
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Ingredient> ingredients = new ArrayList<>();
 
     @Column(name = "image_url")
     private String imageUrl;
