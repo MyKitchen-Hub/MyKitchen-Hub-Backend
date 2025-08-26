@@ -32,4 +32,16 @@ public class UserMapper {
         user.setRole(Role.USER);
         return user;
     }
+
+    public void updateEntity(User user, UserUpdateDto updateDto) {
+        if (user == null || updateDto == null) {
+            return;
+        }
+        if (updateDto.username() != null) {
+            user.setUsername(updateDto.username());
+        }
+        if (updateDto.email() != null) {
+            user.setEmail(updateDto.email());
+        }
+    }
 }

@@ -45,7 +45,47 @@ MyKitchen Hub is a Spring Boot application that helps users optimize their cooki
 - [x] Bean validation starter
 - [x] Input validation annotations (@NotBlank, @Email, @Size)
 
+#### **Authentication & Security**
+
+- [x] JWT token generation and validation
+- [x] Authentication service
+- [x] Security configuration
+- [x] Password encoding
+- [x] Login/logout endpoints
+
+#### **User CRUD methods**
+
+- [x] Find all
+- [x] Find by id
+- [x] Create
+- [x] Update
+- [x] Delete
+
 ### 🔄 IN PROGRESS
+
+#### **Recipe CRUD methods**
+
+- [ ] Find all
+- [ ] Find by id
+- [ ] Create
+- [ ] Update
+- [ ] Delete
+
+#### **Ingredient CRUD methods**
+
+- [ ] Find all
+- [ ] Find by id
+- [ ] Create
+- [ ] Update
+- [ ] Delete
+
+#### **ShoppingList CRUD methods**
+
+- [ ] Find all
+- [ ] Find by id
+- [ ] Create
+- [ ] Update
+- [ ] Delete
 
 #### **Database & Data**
 
@@ -73,14 +113,6 @@ MyKitchen Hub is a Spring Boot application that helps users optimize their cooki
 - [ ] Ingredient consolidation logic
 - [ ] Shopping list service
 - [ ] Shopping list controller
-
-#### **Authentication & Security**
-
-- [x] JWT token generation and validation
-- [x] Authentication service
-- [x] Security configuration
-- [x] Password encoding
-- [x] Login/logout endpoints
 
 #### **Social Features**
 
