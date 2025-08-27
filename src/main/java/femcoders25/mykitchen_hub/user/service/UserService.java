@@ -130,7 +130,7 @@ public class UserService {
         }
     }
 
-    private User getCurrentUser() {
+    public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         return findByUsername(username)
