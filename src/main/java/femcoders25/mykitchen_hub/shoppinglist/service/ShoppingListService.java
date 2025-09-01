@@ -3,6 +3,9 @@ package femcoders25.mykitchen_hub.shoppinglist.service;
 import femcoders25.mykitchen_hub.common.dto.ApiResponse;
 import femcoders25.mykitchen_hub.common.exception.ResourceNotFoundException;
 import femcoders25.mykitchen_hub.common.exception.UnauthorizedOperationException;
+import femcoders25.mykitchen_hub.email.EmailService;
+import femcoders25.mykitchen_hub.email.PdfService;
+import femcoders25.mykitchen_hub.email.ShoppingListEmailTemplates;
 import femcoders25.mykitchen_hub.ingredient.entity.Ingredient;
 import femcoders25.mykitchen_hub.recipe.entity.Recipe;
 import femcoders25.mykitchen_hub.recipe.repository.RecipeRepository;
@@ -16,6 +19,7 @@ import femcoders25.mykitchen_hub.shoppinglist.entity.ShoppingList;
 import femcoders25.mykitchen_hub.shoppinglist.repository.ListItemRepository;
 import femcoders25.mykitchen_hub.shoppinglist.repository.ShoppingListRepository;
 import femcoders25.mykitchen_hub.user.entity.User;
+import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +41,8 @@ public class ShoppingListService {
     private final ListItemRepository listItemRepository;
     private final RecipeRepository recipeRepository;
     private final ShoppingListMapper shoppingListMapper;
+    private final EmailService emailService;
+    private final PdfService pdfService;
 
     public ShoppingListResponseDto createShoppingList(ShoppingListCreateDto createDto, User user) {
         log.info("Creating shopping list for user: {}", user.getUsername());
@@ -60,7 +66,48 @@ public class ShoppingListService {
         savedShoppingList.setListItems(listItems);
 
         log.info("Shopping list created successfully with {} items", listItems.size());
+
+        sendShoppingListEmail(user, savedShoppingList, listItems);
+
         return shoppingListMapper.toResponseDto(savedShoppingList);
+    }
+
+    private void sendShoppingListEmail(User user, ShoppingList shoppingList, List<ListItem> listItems) {
+        try {
+            String shoppingListText = formatShoppingListForEmail(shoppingList, listItems);
+            String subject = "Your Shopping List: " + shoppingList.getName() + " 🛒";
+            String plainText = ShoppingListEmailTemplates.getShoppingListEmailPlainText(user, shoppingListText);
+            String htmlContent = ShoppingListEmailTemplates.getShoppingListEmailHtml(user, shoppingListText);
+
+            byte[] pdfAttachment = pdfService.generateShoppingListPdf(shoppingList, user);
+            String pdfFileName = "shopping_list_" + shoppingList.getName().replaceAll("[^a-zA-Z0-9]", "_") + ".pdf";
+
+            emailService.sendShoppingListCreatedEmailWithPdf(user.getEmail(), subject, plainText, htmlContent,
+                    pdfAttachment, pdfFileName);
+            log.info("Shopping list email with PDF sent successfully to user: {}", user.getUsername());
+        } catch (MessagingException e) {
+            log.error("Failed to send shopping list email to user: {}", user.getUsername(), e);
+
+        } catch (Exception e) {
+            log.error("Unexpected error while sending shopping list email to user: {}", user.getUsername(), e);
+        }
+    }
+
+    private String formatShoppingListForEmail(ShoppingList shoppingList, List<ListItem> listItems) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Shopping List: ").append(shoppingList.getName()).append("\n");
+        sb.append("Generated from recipes: ").append(shoppingList.getGeneratedFromRecipe()).append("\n");
+        sb.append("Created: ").append(shoppingList.getCreatedAt()).append("\n\n");
+        sb.append("Items:\n");
+
+        for (int i = 0; i < listItems.size(); i++) {
+            ListItem item = listItems.get(i);
+            sb.append(i + 1).append(". ").append(item.getName())
+                    .append(" - ").append(item.getAmount())
+                    .append(" ").append(item.getUnit()).append("\n");
+        }
+
+        return sb.toString();
     }
 
     private List<ListItem> generateMergedIngredients(List<Recipe> recipes) {
@@ -158,6 +205,10 @@ public class ShoppingListService {
 
         ShoppingList updatedShoppingList = shoppingListRepository.save(shoppingList);
 
+        if (updateDto.recipeIds() != null && !updateDto.recipeIds().isEmpty()) {
+            sendShoppingListEmail(user, updatedShoppingList, updatedShoppingList.getListItems());
+        }
+
         log.info("Shopping list updated successfully. Name: {}, Recipes updated: {}",
                 updateDto.name(), updateDto.recipeIds() != null);
 
@@ -198,4 +249,3 @@ public class ShoppingListService {
     }
 
 }
-

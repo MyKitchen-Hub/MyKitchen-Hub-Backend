@@ -70,15 +70,29 @@ MyKitchen Hub is a Spring Boot application that helps users optimize their cooki
 - [x] Recipe controller with REST endpoints
 - [x] Recipe search and filtering
 
-### 🔄 IN PROGRESS
-
 #### **ShoppingList CRUD methods**
 
-- [ ] Find all
-- [ ] Find by id
-- [ ] Create
-- [ ] Update
-- [ ] Delete
+- [x] Find all
+- [x] Find by id
+- [x] Create
+- [x] Update
+- [x] Delete
+
+#### **Shopping List System**
+
+- [x] Shopping list entity
+- [x] Automatic shopping list generation
+- [x] Ingredient consolidation logic
+- [x] Shopping list service
+- [x] Shopping list controller
+
+#### **Email Notifications**
+
+- [x] User registration confirmation emails
+- [x] Shopping list email delivery
+- [x] Email templates and services
+
+### 🔄 IN PROGRESS
 
 #### **Database & Data**
 
@@ -88,15 +102,7 @@ MyKitchen Hub is a Spring Boot application that helps users optimize their cooki
 - [x] Recipe entity and relationships
 - [x] Ingredient entity and relationships
 - [ ] Comment entity and relationships
-- [ ] Shopping list entity and relationships
-
-#### **Shopping List System**
-
-- [x] Shopping list entity
-- [ ] Automatic shopping list generation
-- [ ] Ingredient consolidation logic
-- [ ] Shopping list service
-- [ ] Shopping list controller
+- [x] Shopping list entity and relationships
 
 #### **Social Features**
 
@@ -105,12 +111,6 @@ MyKitchen Hub is a Spring Boot application that helps users optimize their cooki
 - [ ] Favorite recipes functionality
 - [ ] General chat system (WebSocket)
 - [ ] User interaction services
-
-#### **Email Notifications**
-
-- [ ] User registration confirmation emails
-- [ ] Shopping list email delivery
-- [ ] Email templates and services
 
 #### **Testing & Quality**
 

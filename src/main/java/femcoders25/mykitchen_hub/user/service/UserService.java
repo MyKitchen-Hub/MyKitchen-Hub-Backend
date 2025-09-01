@@ -1,6 +1,8 @@
 package femcoders25.mykitchen_hub.user.service;
 
 import femcoders25.mykitchen_hub.common.exception.ResourceNotFoundException;
+import femcoders25.mykitchen_hub.email.EmailService;
+import femcoders25.mykitchen_hub.email.UserEmailTemplates;
 import femcoders25.mykitchen_hub.user.dto.UserMapper;
 import femcoders25.mykitchen_hub.user.dto.UserRegistrationDto;
 import femcoders25.mykitchen_hub.user.dto.UserResponseDto;
@@ -8,6 +10,7 @@ import femcoders25.mykitchen_hub.user.dto.UserUpdateDto;
 import femcoders25.mykitchen_hub.user.entity.Role;
 import femcoders25.mykitchen_hub.user.entity.User;
 import femcoders25.mykitchen_hub.user.repository.UserRepository;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -29,6 +32,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     public User createUser(UserRegistrationDto registrationDto) {
         if (userRepository.existsByUsername(registrationDto.username())) {
@@ -48,7 +52,24 @@ public class UserService {
         User savedUser = userRepository.save(user);
         log.info("Created new user: {}", savedUser.getUsername());
 
+        sendWelcomeEmail(savedUser);
+
         return savedUser;
+    }
+
+    private void sendWelcomeEmail(User user) {
+        try {
+            String subject = "Welcome to MyKitchen Hub! 🎉";
+            String plainText = UserEmailTemplates.getUserWelcomeEmailPlainText(user);
+            String htmlContent = UserEmailTemplates.getUserWelcomeEmailHtml(user);
+
+            emailService.sendUserWelcomeEmail(user.getEmail(), subject, plainText, htmlContent);
+            log.info("Welcome email sent successfully to user: {}", user.getUsername());
+        } catch (MessagingException e) {
+            log.error("Failed to send welcome email to user: {}", user.getUsername(), e);
+        } catch (Exception e) {
+            log.error("Unexpected error while sending welcome email to user: {}", user.getUsername(), e);
+        }
     }
 
     @Transactional(readOnly = true)
