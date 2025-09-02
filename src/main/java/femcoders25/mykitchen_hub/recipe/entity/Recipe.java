@@ -24,13 +24,13 @@ public class Recipe {
     private Long id;
 
     @NotBlank(message = "Title is required")
-    @Size(min= 3, max= 100, message = "Title must be between 3 and 100 characters")
+    @Size(min = 3, max = 100, message = "Title must be between 3 and 100 characters")
     @Column(nullable = false)
     private String title;
 
     @NotBlank(message = "Description is required")
-    @Size(min= 10, max= 1000, message = "Description must be between 10 and 1000 characters")
-    @Column(columnDefinition = "TEXT",nullable = false)
+    @Size(min = 10, max = 2000, message = "Description must be between 10 and 2000 characters")
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String description;
 
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -63,12 +63,12 @@ public class Recipe {
         updatedAt = LocalDateTime.now();
     }
 
-    public void addIngredient(Ingredient ingredient){
+    public void addIngredient(Ingredient ingredient) {
         ingredients.add(ingredient);
         ingredient.setRecipe(this);
     }
 
-    public void removeIngredient(Ingredient ingredient){
+    public void removeIngredient(Ingredient ingredient) {
         ingredients.remove(ingredient);
         ingredient.setRecipe(null);
     }

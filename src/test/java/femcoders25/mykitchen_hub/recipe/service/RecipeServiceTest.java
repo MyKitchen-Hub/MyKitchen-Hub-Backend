@@ -1,5 +1,6 @@
 package femcoders25.mykitchen_hub.recipe.service;
 
+import femcoders25.mykitchen_hub.cloudinary.CloudinaryService;
 import femcoders25.mykitchen_hub.common.exception.ResourceNotFoundException;
 import femcoders25.mykitchen_hub.common.exception.UnauthorizedOperationException;
 import femcoders25.mykitchen_hub.recipe.dto.*;
@@ -35,6 +36,9 @@ class RecipeServiceTest {
     @Mock
     private RecipeRepository recipeRepository;
 
+    @Mock
+    private CloudinaryService cloudinaryService;
+
     @InjectMocks
     private RecipeService recipeService;
 
@@ -57,7 +61,8 @@ class RecipeServiceTest {
 
         createDto = new RecipeCreateDto("Test Recipe", "Test Description", List.of(), null, "Test Tag");
         updateDto = new RecipeUpdateDto("Updated Recipe", "Updated Description", List.of(), null, "Updated Tag");
-        RecipeResponseDto responseDto = new RecipeResponseDto(1L, "Test Recipe", "Test Description", List.of(), null, "Test Tag",
+        RecipeResponseDto responseDto = new RecipeResponseDto(1L, "Test Recipe", "Test Description", List.of(), null,
+                "Test Tag",
                 null, null, 1L, "testuser");
         pageable = PageRequest.of(0, 10);
     }
@@ -65,12 +70,14 @@ class RecipeServiceTest {
     @Test
     void testCreateRecipe() {
         when(userService.getCurrentUser()).thenReturn(user);
+        when(cloudinaryService.uploadImageSafely(null)).thenReturn("http://localhost:8080/images/logo.png");
         when(recipeRepository.save(any(Recipe.class))).thenReturn(recipe);
 
         RecipeResponseDto result = recipeService.createRecipe(createDto);
 
         assertNotNull(result);
         verify(userService).getCurrentUser();
+        verify(cloudinaryService).uploadImageSafely(null);
         verify(recipeRepository).save(any(Recipe.class));
     }
 
@@ -82,8 +89,33 @@ class RecipeServiceTest {
 
         assertDoesNotThrow(() -> recipeService.deleteRecipe(1L));
         verify(recipeRepository).findById(1L);
-        verify(userService).getCurrentUser();
+        verify(userService, times(2)).getCurrentUser();
         verify(recipeRepository).delete(recipe);
+    }
+
+    @Test
+    void testDeleteRecipeWithImage() {
+        Recipe recipeWithImage = new Recipe();
+        recipeWithImage.setId(1L);
+        recipeWithImage.setTitle("Test Recipe");
+        recipeWithImage.setImageUrl("https://res.cloudinary.com/test/image/upload/v123456789/recipe_image.jpg");
+        recipeWithImage.setCreatedBy(user);
+
+        when(recipeRepository.findById(1L)).thenReturn(Optional.of(recipeWithImage));
+        when(userService.getCurrentUser()).thenReturn(user);
+        when(cloudinaryService.getDefaultImageUrl()).thenReturn("http://localhost:8080/images/logo.png");
+        when(cloudinaryService
+                .extractPublicIdFromUrl("https://res.cloudinary.com/test/image/upload/v123456789/recipe_image.jpg"))
+                .thenReturn("recipe_image");
+        doNothing().when(recipeRepository).delete(recipeWithImage);
+
+        assertDoesNotThrow(() -> recipeService.deleteRecipe(1L));
+        verify(recipeRepository).findById(1L);
+        verify(userService, times(2)).getCurrentUser();
+        verify(cloudinaryService).getDefaultImageUrl();
+        verify(cloudinaryService)
+                .extractPublicIdFromUrl("https://res.cloudinary.com/test/image/upload/v123456789/recipe_image.jpg");
+        verify(recipeRepository).delete(recipeWithImage);
     }
 
     @Test
@@ -177,7 +209,7 @@ class RecipeServiceTest {
 
         assertNotNull(result);
         verify(recipeRepository).findById(1L);
-        verify(userService).getCurrentUser();
+        verify(userService, times(2)).getCurrentUser();
         verify(recipeRepository).save(any(Recipe.class));
     }
 

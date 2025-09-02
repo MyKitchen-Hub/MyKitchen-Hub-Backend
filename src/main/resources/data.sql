@@ -11,11 +11,11 @@ INSERT INTO users (username, email, password, role, created_at, updated_at) VALU
 
 -- Recipes
 INSERT INTO recipes (title, description, image_url, tag, created_by, created_at, updated_at) VALUES
-('Spaghetti Carbonara', 'Classic Italian pasta dish with eggs, cheese, pancetta, and black pepper. A simple yet delicious recipe that comes together in minutes.', 'https://example.com/carbonara.jpg', 'Italian, Pasta, Quick', 2, NOW(), NOW()),
-('Chicken Tikka Masala', 'Creamy and flavorful Indian curry with tender chicken pieces in a rich tomato-based sauce. Served with basmati rice and naan bread.', 'https://example.com/tikka-masala.jpg', 'Indian, Curry, Chicken', 2, NOW(), NOW()),
-('Chocolate Chip Cookies', 'Soft and chewy homemade chocolate chip cookies with a perfect golden brown exterior. A classic dessert that everyone loves.', 'https://example.com/cookies.jpg', 'Dessert, Baking, Chocolate', 3, NOW(), NOW()),
-('Caesar Salad', 'Fresh romaine lettuce with Caesar dressing, croutons, and parmesan cheese. A light and refreshing salad perfect for any meal.', 'https://example.com/caesar-salad.jpg', 'Salad, Healthy, Vegetarian', 4, NOW(), NOW()),
-('Beef Stir Fry', 'Quick and easy stir-fried beef with colorful vegetables in a savory sauce. Perfect for busy weeknights.', 'https://example.com/stir-fry.jpg', 'Asian, Quick, Beef', 2, NOW(), NOW());
+('Spaghetti Carbonara', 'Classic Italian pasta dish with eggs, cheese, pancetta, and black pepper. A simple yet delicious recipe that comes together in minutes.', 'https://res.cloudinary.com/my-kitchen-hub/image/upload/v1756816189/11973-spaghetti-carbonara-ii-DDMFS-4x3-6edea51e421e4457ac0c3269f3be5157_kmwegc.jpg', 'Italian, Pasta, Quick', 2, NOW(), NOW()),
+('Chicken Tikka Masala', 'Creamy and flavorful Indian curry with tender chicken pieces in a rich tomato-based sauce. Served with basmati rice and naan bread.', 'https://res.cloudinary.com/my-kitchen-hub/image/upload/v1756838719/chicken-tikka-masala-for-the-grill-recipe-hero-2_1-cb493f49e30140efbffec162d5f2d1d7_wfq164.jpg', 'Indian, Curry, Chicken', 2, NOW(), NOW()),
+('Chocolate Chip Cookies', 'Soft and chewy homemade chocolate chip cookies with a perfect golden brown exterior. A classic dessert that everyone loves.', 'https://res.cloudinary.com/my-kitchen-hub/image/upload/v1756838782/BAKERY-STYLE-CHOCOLATE-CHIP-COOKIES-9-637x637-1_abgiyb.jpg', 'Dessert, Baking, Chocolate', 3, NOW(), NOW()),
+('Caesar Salad', 'Fresh romaine lettuce with Caesar dressing, croutons, and parmesan cheese. A light and refreshing salad perfect for any meal.', 'https://res.cloudinary.com/my-kitchen-hub/image/upload/v1756838862/caesar-salad_qmmrvv.jpg', 'Salad, Healthy, Vegetarian', 4, NOW(), NOW()),
+('Beef Stir Fry', 'Quick and easy stir-fried beef with colorful vegetables in a savory sauce. Perfect for busy weeknights.', 'https://res.cloudinary.com/my-kitchen-hub/image/upload/v1756838918/Easy-Beef-Stir-Fry-S2_mvwpqt.jpg', 'Asian, Quick, Beef', 2, NOW(), NOW());
 
 -- Ingredients for Spaghetti Carbonara
 INSERT INTO ingredients (name, amount, unit, recipe_id) VALUES
