@@ -6,6 +6,13 @@ import femcoders25.mykitchen_hub.shoppinglist.dto.ShoppingListResponseDto;
 import femcoders25.mykitchen_hub.shoppinglist.dto.ShoppingListUpdateDto;
 import femcoders25.mykitchen_hub.shoppinglist.service.ShoppingListService;
 import femcoders25.mykitchen_hub.user.entity.User;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,11 +27,18 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/shopping-lists")
 @RequiredArgsConstructor
-
+@Tag(name = "Shopping List Management", description = "Shopping list management endpoints for creating, updating, and managing shopping lists")
 public class ShoppingListController {
 
     private final ShoppingListService shoppingListService;
 
+    @Operation(summary = "Create shopping list", description = "Creates a new shopping list for the authenticated user")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Shopping list created successfully", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input data", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Authentication required", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+    })
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping
     public ResponseEntity<ApiResponse<ShoppingListResponseDto>> createShoppingList(
             @Valid @RequestBody ShoppingListCreateDto createDto,
@@ -37,19 +51,32 @@ public class ShoppingListController {
                 .body(ApiResponse.success("Shopping list created successfully", response));
     }
 
+    @Operation(summary = "Get shopping list by ID", description = "Retrieves a specific shopping list by ID for the authenticated user")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Shopping list retrieved successfully", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Authentication required", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Shopping list not found", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+    })
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ShoppingListResponseDto>> getShoppingList(
-            @PathVariable Long id,
+            @Parameter(description = "Shopping list ID") @PathVariable Long id,
             @AuthenticationPrincipal User user) {
 
         ShoppingListResponseDto response = shoppingListService.getShoppingListById(id, user);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
+    @Operation(summary = "Get user shopping lists", description = "Retrieves all shopping lists for the authenticated user, optionally filtered by name")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Shopping lists retrieved successfully", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Authentication required", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+    })
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping
     public ResponseEntity<ApiResponse<List<ShoppingListResponseDto>>> getUserShoppingLists(
             @AuthenticationPrincipal User user,
-            @RequestParam(required = false) String name) {
+            @Parameter(description = "Optional name filter for shopping lists") @RequestParam(required = false) String name) {
 
         List<ShoppingListResponseDto> response;
         if (name != null && !name.trim().isEmpty()) {
@@ -61,9 +88,17 @@ public class ShoppingListController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
+    @Operation(summary = "Update shopping list", description = "Updates an existing shopping list for the authenticated user")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Shopping list updated successfully", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input data", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Authentication required", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Shopping list not found", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+    })
+    @SecurityRequirement(name = "bearerAuth")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ShoppingListResponseDto>> updateShoppingList(
-            @PathVariable Long id,
+            @Parameter(description = "Shopping list ID") @PathVariable Long id,
             @Valid @RequestBody ShoppingListUpdateDto updateDto,
             @AuthenticationPrincipal User user) {
 
@@ -71,23 +106,36 @@ public class ShoppingListController {
         return ResponseEntity.ok(ApiResponse.success("Shopping list updated successfully", response));
     }
 
+    @Operation(summary = "Delete shopping list", description = "Deletes a shopping list for the authenticated user")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Shopping list deleted successfully", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Authentication required", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Shopping list not found", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+    })
+    @SecurityRequirement(name = "bearerAuth")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<String>> deleteShoppingList(
-            @PathVariable Long id,
+            @Parameter(description = "Shopping list ID") @PathVariable Long id,
             @AuthenticationPrincipal User user) {
 
         ApiResponse<String> response = shoppingListService.deleteShoppingList(id, user);
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Toggle item checked status", description = "Toggles the checked status of an item in a shopping list")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Item status toggled successfully", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Authentication required", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Shopping list or item not found", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+    })
+    @SecurityRequirement(name = "bearerAuth")
     @PatchMapping("/{listId}/items/{itemId}/toggle")
     public ResponseEntity<ApiResponse<String>> toggleItemChecked(
-            @PathVariable Long listId,
-            @PathVariable Long itemId,
+            @Parameter(description = "Shopping list ID") @PathVariable Long listId,
+            @Parameter(description = "Item ID") @PathVariable Long itemId,
             @AuthenticationPrincipal User user) {
 
         ApiResponse<String> response = shoppingListService.toggleItemChecked(listId, itemId, user);
         return ResponseEntity.ok(response);
     }
 }
-

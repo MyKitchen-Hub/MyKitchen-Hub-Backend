@@ -54,7 +54,8 @@ public class SecurityConfig {
 
                                                 .requestMatchers("/ws/**").permitAll()
                                                 .requestMatchers("/actuator/**").permitAll()
-                                                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                                                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/api-docs/**")
+                                                .permitAll()
 
                                                 // Admin-only
                                                 .requestMatchers("/api/users").hasRole("ADMIN")
