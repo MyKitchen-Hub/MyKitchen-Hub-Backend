@@ -89,7 +89,7 @@ public class UserService {
         if (updateDto == null) {
             throw new IllegalArgumentException("Update data cannot be null");
         }
-        if (!isCurrentUser(id) && !isCurrentUserAdmin()) {
+        if (!isCurrentUser(id) && isCurrentUserAdmin()) {
             throw new AccessDeniedException("You can only update your own profile");
         }
         User user = getUserById(id);
@@ -119,7 +119,7 @@ public class UserService {
 
     @Transactional
     public void deleteUser(Long id) {
-        if (!isCurrentUser(id) && !isCurrentUserAdmin()) {
+        if (!isCurrentUser(id) && isCurrentUserAdmin()) {
             throw new AccessDeniedException("You can only delete your own profile");
         }
 
@@ -158,13 +158,17 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
     }
 
+    public Long getCurrentUserId() {
+        return getCurrentUser().getId();
+    }
+
     private boolean isCurrentUserAdmin() {
         try {
             User currentUser = getCurrentUser();
-            return Role.ADMIN.equals(currentUser.getRole());
+            return !Role.ADMIN.equals(currentUser.getRole());
         } catch (Exception e) {
             log.warn("Could not determine if current user is admin", e);
-            return false;
+            return true;
         }
     }
 }
