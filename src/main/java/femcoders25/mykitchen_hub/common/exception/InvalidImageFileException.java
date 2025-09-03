@@ -1,4 +1,4 @@
-package femcoders25.mykitchen_hub.cloudinary.exception;
+package femcoders25.mykitchen_hub.common.exception;
 
 public class InvalidImageFileException extends RuntimeException {
 

@@ -2,7 +2,8 @@ package femcoders25.mykitchen_hub.cloudinary;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import femcoders25.mykitchen_hub.cloudinary.exception.InvalidImageFileException;
+import femcoders25.mykitchen_hub.common.exception.InvalidImageFileException;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ public class CloudinaryService {
 
     private final Cloudinary cloudinary;
 
+    @Getter
     @Value("${cloudinary.default-image-url:http://localhost:8080/images/logo.png}")
     private String defaultImageUrl;
 
@@ -29,10 +31,7 @@ public class CloudinaryService {
         this.cloudinary = cloudinary;
     }
 
-    public String getDefaultImageUrl() {
-        return defaultImageUrl;
-    }
-
+    @SuppressWarnings("unchecked")
     public Map<String, Object> uploadFile(MultipartFile file) throws IOException {
         validateImageFile(file);
         return cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
@@ -44,37 +43,29 @@ public class CloudinaryService {
             log.info("Deleted image with publicId: {}", publicId);
         }
     }
+
     public String extractPublicIdFromUrl(String imageUrl) {
-        if (imageUrl == null || imageUrl.trim().isEmpty() || imageUrl.equals(getDefaultImageUrl())) {
+        if (imageUrl == null)
+            return null;
+        if (imageUrl.trim().isEmpty())
+            return null;
+        if (imageUrl.equals(getDefaultImageUrl()))
+            return null;
+
+        int uploadIndex = imageUrl.indexOf("/upload/");
+        if (uploadIndex == -1) {
+            log.warn("Could not extract publicId from URL: {}", imageUrl);
             return null;
         }
 
-        try {
-            String[] parts = imageUrl.split("/");
+        String afterUpload = imageUrl.substring(uploadIndex + 8);
+        String[] parts = afterUpload.split("/");
+        if (parts.length == 0)
+            return null;
 
-            for (int i = 0; i < parts.length; i++) {
-                if ("upload".equals(parts[i]) && i + 1 < parts.length) {
-                    int publicIdIndex = i + 1;
-
-                    if (parts[publicIdIndex].matches("v\\d+") && publicIdIndex + 1 < parts.length) {
-                        publicIdIndex++;
-                    }
-
-                    if (publicIdIndex < parts.length) {
-                        String fileName = parts[publicIdIndex];
-                        int lastDotIndex = fileName.lastIndexOf('.');
-                        return lastDotIndex > 0 ? fileName.substring(0, lastDotIndex) : fileName;
-                    }
-                    break;
-                }
-            }
-
-            log.warn("Could not extract publicId from URL: {}", imageUrl);
-        } catch (Exception e) {
-            log.error("Error extracting publicId from URL: {}, error: {}", imageUrl, e.getMessage());
-        }
-
-        return null;
+        String fileName = parts[parts.length - 1];
+        int dotIndex = fileName.lastIndexOf('.');
+        return dotIndex > 0 ? fileName.substring(0, dotIndex) : fileName;
     }
 
     public String uploadImageSafely(MultipartFile image) {

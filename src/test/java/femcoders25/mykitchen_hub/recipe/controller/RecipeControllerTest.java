@@ -60,7 +60,7 @@ class RecipeControllerTest {
         ResponseEntity<ApiResponse<RecipeResponseDto>> response = recipeController.createRecipe(
                 "Test Recipe", "Test Description", "[]", null, "Test Tag");
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals("Recipe created successfully", response.getBody().getMessage());
         assertEquals(responseDto, response.getBody().getData());
@@ -73,7 +73,7 @@ class RecipeControllerTest {
 
         ResponseEntity<ApiResponse<RecipeResponseDto>> response = recipeController.createRecipeJson(createDto);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals("Recipe created successfully", response.getBody().getMessage());
         assertEquals(responseDto, response.getBody().getData());
@@ -157,7 +157,8 @@ class RecipeControllerTest {
 
     @Test
     void testUpdateRecipe() throws IOException {
-        when(recipeService.updateRecipe(eq(1L), any(RecipeUpdateDto.class), eq(null))).thenReturn(responseDto);
+        when(recipeService.updateRecipe(eq(1L), eq("Updated Recipe"), eq("Updated Description"), eq(null), eq(null),
+                eq("Updated Tag"))).thenReturn(responseDto);
 
         ResponseEntity<ApiResponse<RecipeResponseDto>> response = recipeController.updateRecipe(
                 1L, "Updated Recipe", "Updated Description", null, null, "Updated Tag");
@@ -166,7 +167,8 @@ class RecipeControllerTest {
         assertNotNull(response.getBody());
         assertEquals("Recipe updated successfully", response.getBody().getMessage());
         assertEquals(responseDto, response.getBody().getData());
-        verify(recipeService).updateRecipe(eq(1L), any(RecipeUpdateDto.class), eq(null));
+        verify(recipeService).updateRecipe(eq(1L), eq("Updated Recipe"), eq("Updated Description"), eq(null), eq(null),
+                eq("Updated Tag"));
     }
 
     @Test

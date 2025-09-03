@@ -73,7 +73,7 @@ public class RecipeService {
 
         try {
             List<IngredientDto> ingredients = objectMapper.readValue(ingredientsJson,
-                    new TypeReference<List<IngredientDto>>() {
+                    new TypeReference<>() {
                     });
 
             for (int i = 0; i < ingredients.size(); i++) {
@@ -92,7 +92,7 @@ public class RecipeService {
             return ingredients;
         } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
             throw new IllegalArgumentException(
-                    "Invalid JSON format for ingredients. Expected format: [{\"name\":\"Flour\",\"amount\":200,\"unit\":\"g\"}]. Error: "
+                    "Invalid JSON format for ingredients. Expected format: [{\"name\":\"Flour\",\"amount\":200,\"unit\":\"g\"},{\"name\":\"Sugar\",\"amount\":100,\"unit\":\"g\"}]. Please ensure the JSON is complete and properly formatted. Error: "
                             + e.getMessage());
         } catch (Exception e) {
             throw new IllegalArgumentException("Invalid ingredients data: " + e.getMessage());

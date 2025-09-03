@@ -25,6 +25,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.io.IOException;
@@ -38,7 +39,7 @@ public class RecipeController {
 
         private final RecipeService recipeService;
 
-        @Operation(summary = "Create a new recipe", description = "Creates a new recipe with optional image upload. Use multipart/form-data for file upload.")
+        @Operation(summary = "Create a new recipe", description = "Creates a new recipe with optional image upload. Use multipart/form-data for file upload. Ingredients must be provided as a valid JSON array string, e.g., [{\"name\":\"Flour\",\"amount\":200,\"unit\":\"g\"},{\"name\":\"Sugar\",\"amount\":100,\"unit\":\"g\"}]")
         @ApiResponses(value = {
                         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Recipe created successfully", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
                         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input data or file", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
@@ -50,7 +51,7 @@ public class RecipeController {
         public ResponseEntity<ApiResponse<RecipeResponseDto>> createRecipe(
                         @Parameter(description = "Recipe title", required = true) @RequestParam("title") @NotBlank(message = "Title is required") @Size(min = 3, max = 100, message = "Title must be between 3 and 100 characters") String title,
                         @Parameter(description = "Recipe description", required = true) @RequestParam("description") @NotBlank(message = "Description is required") @Size(min = 10, max = 2000, message = "Description must be between 10 and 2000 characters") String description,
-                        @Parameter(description = "Ingredients as JSON string", required = true, example = "[{\"name\":\"Flour\",\"amount\":200,\"unit\":\"g\"},{\"name\":\"Sugar\",\"amount\":100,\"unit\":\"g\"}]", schema = @Schema(type = "string")) @RequestParam("ingredients") @NotBlank(message = "Ingredients are required") String ingredients,
+                        @Parameter(description = "Ingredients as JSON string. Example: [{\"name\":\"Flour\",\"amount\":200,\"unit\":\"g\"},{\"name\":\"Sugar\",\"amount\":100,\"unit\":\"g\"}]", required = true, example = "[{\"name\":\"Flour\",\"amount\":200,\"unit\":\"g\"},{\"name\":\"Sugar\",\"amount\":100,\"unit\":\"g\"}]", schema = @Schema(type = "string", format = "json", example = "[{\"name\":\"Flour\",\"amount\":200,\"unit\":\"g\"},{\"name\":\"Sugar\",\"amount\":100,\"unit\":\"g\"}]")) @RequestParam("ingredients") @NotBlank(message = "Ingredients are required") @Pattern(regexp = "^\\[.*\\]$", message = "Ingredients must be a valid JSON array string") String ingredients,
                         @Parameter(description = "Recipe image file (optional)") @RequestParam(value = "image", required = false) MultipartFile image,
                         @Parameter(description = "Recipe tag (optional)") @RequestParam(value = "tag", required = false) String tag)
                         throws IOException {
