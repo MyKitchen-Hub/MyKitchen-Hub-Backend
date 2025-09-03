@@ -1,5 +1,7 @@
 package femcoders25.mykitchen_hub.recipe.dto;
 
+import femcoders25.mykitchen_hub.comment.dto.CommentMapper;
+import femcoders25.mykitchen_hub.comment.dto.CommentResponseDto;
 import femcoders25.mykitchen_hub.ingredient.dto.IngredientDto;
 import femcoders25.mykitchen_hub.ingredient.dto.IngredientMapper;
 import femcoders25.mykitchen_hub.ingredient.entity.Ingredient;
@@ -19,6 +21,10 @@ public class RecipeMapper {
                 .map(IngredientMapper::toIngredientDto)
                 .toList();
 
+        List<CommentResponseDto> commentDtos = recipe.getComments().stream()
+                .map(CommentMapper::toCommentResponseDto)
+                .toList();
+
         return new RecipeResponseDto(
                 recipe.getId(),
                 recipe.getTitle(),
@@ -26,6 +32,7 @@ public class RecipeMapper {
                 ingredientDtos,
                 recipe.getImageUrl(),
                 recipe.getTag(),
+                commentDtos,
                 recipe.getCreatedAt(),
                 recipe.getUpdatedAt(),
                 recipe.getCreatedBy() != null ? recipe.getCreatedBy().getId() : null,

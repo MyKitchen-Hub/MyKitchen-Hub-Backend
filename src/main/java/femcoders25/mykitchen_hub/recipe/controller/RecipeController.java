@@ -2,6 +2,7 @@ package femcoders25.mykitchen_hub.recipe.controller;
 
 import femcoders25.mykitchen_hub.common.dto.ApiResponse;
 import femcoders25.mykitchen_hub.recipe.dto.RecipeCreateDto;
+import femcoders25.mykitchen_hub.recipe.dto.RecipeListDto;
 import femcoders25.mykitchen_hub.recipe.dto.RecipeResponseDto;
 import femcoders25.mykitchen_hub.recipe.dto.RecipeUpdateDto;
 import femcoders25.mykitchen_hub.recipe.service.RecipeService;
@@ -83,7 +84,7 @@ public class RecipeController {
                         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Recipes retrieved successfully", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
         })
         @GetMapping
-        public ResponseEntity<ApiResponse<Page<RecipeResponseDto>>> getAllRecipes(
+        public ResponseEntity<ApiResponse<Page<RecipeListDto>>> getAllRecipes(
                         @Parameter(description = "Page number (0-based)") @RequestParam(defaultValue = "0") int page,
                         @Parameter(description = "Page size") @RequestParam(defaultValue = "10") int size,
                         @Parameter(description = "Sort field") @RequestParam(defaultValue = "id") String sortBy,
@@ -93,7 +94,7 @@ public class RecipeController {
                                 : Sort.by(sortBy).ascending();
                 Pageable pageable = PageRequest.of(page, size, sort);
 
-                Page<RecipeResponseDto> recipes = recipeService.getAllRecipes(pageable);
+                Page<RecipeListDto> recipes = recipeService.getAllRecipes(pageable);
                 return ResponseEntity.ok(ApiResponse.success("Recipes retrieved successfully", recipes));
         }
 

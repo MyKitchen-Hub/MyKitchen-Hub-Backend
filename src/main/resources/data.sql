@@ -1,7 +1,3 @@
--- =====================================================
--- MyKitchen Hub - Test Data
--- =====================================================
-
 -- Users
 INSERT INTO users (username, email, password, role, created_at, updated_at) VALUES
 ('admin', 'admin@mykitchen.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'ADMIN', NOW(), NOW()),
@@ -104,11 +100,39 @@ INSERT INTO list_items (name, amount, unit, is_checked, shopping_list_id) VALUES
 ('Cucumber', 1.0, 'piece', false, 4),
 ('Olive Oil', 1.0, 'bottle', false, 4);
 
+-- Comments for Spaghetti Carbonara (Recipe ID: 1)
+INSERT INTO comments (text, recipe_id, user_id, created_at, updated_at) VALUES
+('Amazing recipe! Turned out delicious, just like in Italy!', 1, 3, '2024-08-30 14:30:00', '2024-08-30 14:30:00'),
+('Classic! I always cook exactly according to this recipe. Thank you!', 1, 4, '2024-08-31 09:15:00', '2024-08-31 09:15:00'),
+('Tried it for the first time - absolutely amazing! Will definitely cook again.', 1, 2, '2024-09-02 18:45:00', '2024-09-02 18:45:00');
+
+-- Comments for Chicken Tikka Masala (Recipe ID: 2)
+INSERT INTO comments (text, recipe_id, user_id, created_at, updated_at) VALUES
+('Incredibly aromatic dish! The spices are perfectly balanced.', 2, 4, '2024-08-31 16:20:00', '2024-08-31 16:20:00'),
+('My husband is delighted! I''ve been cooking it for the third time in a row.', 2, 3, '2024-09-01 12:10:00', '2024-09-01 12:10:00'),
+('Great recipe for getting acquainted with Indian cuisine. Highly recommend!', 2, 1, '2024-09-02 20:30:00', '2024-09-02 20:30:00');
+
+-- Comments for Chocolate Chip Cookies (Recipe ID: 3)
+INSERT INTO comments (text, recipe_id, user_id, created_at, updated_at) VALUES
+('The kids are absolutely thrilled! The cookies turned out soft and aromatic.', 3, 2, '2024-08-31 11:45:00', '2024-08-31 11:45:00'),
+('Perfect recipe for beginners! Everything worked out on the first try.', 3, 4, '2024-09-01 15:30:00', '2024-09-01 15:30:00'),
+('The best chocolate chip cookies I''ve ever made!', 3, 1, '2024-09-02 19:15:00', '2024-09-02 19:15:00');
+
+-- Comments for Caesar Salad (Recipe ID: 4)
+INSERT INTO comments (text, recipe_id, user_id, created_at, updated_at) VALUES
+('Fresh and light salad! Perfect for healthy eating.', 4, 2, '2024-08-30 13:00:00', '2024-08-30 13:00:00'),
+('Classic Caesar! The dressing turned out absolutely perfect.', 4, 3, '2024-09-01 17:45:00', '2024-09-01 17:45:00'),
+('Great recipe for a summer lunch. Very refreshing!', 4, 1, '2024-09-02 21:00:00', '2024-09-02 21:00:00');
+
+-- Comments for Beef Stir Fry (Recipe ID: 5)
+INSERT INTO comments (text, recipe_id, user_id, created_at, updated_at) VALUES
+('Quick, tasty and healthy! Perfect for weekdays.', 5, 3, '2024-08-31 19:30:00', '2024-08-31 19:30:00'),
+('The meat turned out very tender, and the vegetables are crispy. Super!', 5, 4, '2024-09-01 14:20:00', '2024-09-01 14:20:00'),
+('Simple recipe, but the result exceeded all expectations!', 5, 2, '2024-09-02 16:50:00', '2024-09-02 16:50:00');
+
 -- =====================================================
 -- Notes:
--- 1. Password for all users is 'password' (bcrypt encoded)
+-- 1. Password for all users is 'password'
 -- 2. Admin user: admin@mykitchen.com (username: admin)
 -- 3. Regular users: chef_john, cooking_mom, food_lover
--- 4. All timestamps are set to current time
--- 5. Recipe IDs start from 1, User IDs start from 1
 -- =====================================================

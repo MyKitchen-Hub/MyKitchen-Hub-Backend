@@ -1,5 +1,6 @@
 package femcoders25.mykitchen_hub.recipe.entity;
 
+import femcoders25.mykitchen_hub.comment.entity.Comment;
 import femcoders25.mykitchen_hub.ingredient.entity.Ingredient;
 import femcoders25.mykitchen_hub.user.entity.User;
 import jakarta.persistence.*;
@@ -41,6 +42,9 @@ public class Recipe {
 
     @Column(name = "tag")
     private String tag;
+
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Comment> comments = new ArrayList<>();
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
