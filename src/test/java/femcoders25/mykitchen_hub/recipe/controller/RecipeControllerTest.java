@@ -1,10 +1,13 @@
 package femcoders25.mykitchen_hub.recipe.controller;
 
 import femcoders25.mykitchen_hub.common.dto.ApiResponse;
+import femcoders25.mykitchen_hub.ingredient.dto.IngredientDto;
 import femcoders25.mykitchen_hub.recipe.dto.RecipeCreateDto;
 import femcoders25.mykitchen_hub.recipe.dto.RecipeResponseDto;
 import femcoders25.mykitchen_hub.recipe.dto.RecipeUpdateDto;
 import femcoders25.mykitchen_hub.recipe.service.RecipeService;
+
+import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,20 +43,37 @@ class RecipeControllerTest {
 
     @BeforeEach
     void setUp() {
-        createDto = new RecipeCreateDto("Test Recipe", "Test Description", List.of(), null, "Test Tag");
-        updateDto = new RecipeUpdateDto("Updated Recipe", "Updated Description", List.of(), null, "Updated Tag");
-        responseDto = new RecipeResponseDto(1L, "Test Recipe", "Test Description", List.of(), null, "Test Tag",
+        createDto = new RecipeCreateDto("Test Recipe", "Test Description", List.<IngredientDto>of(), null, "Test Tag");
+        updateDto = new RecipeUpdateDto("Updated Recipe", "Updated Description", List.<IngredientDto>of(), null,
+                "Updated Tag");
+        responseDto = new RecipeResponseDto(1L, "Test Recipe", "Test Description", List.<IngredientDto>of(), null,
+                "Test Tag",
                 null, null, 1L, "testuser");
-        recipePage = new PageImpl<>(List.of(responseDto));
+        recipePage = new PageImpl<>(List.<RecipeResponseDto>of(responseDto));
     }
 
     @Test
-    void testCreateRecipe() {
+    void testCreateRecipe() throws IOException {
+        when(recipeService.createRecipe("Test Recipe", "Test Description", "[]", null, "Test Tag"))
+                .thenReturn(responseDto);
+
+        ResponseEntity<ApiResponse<RecipeResponseDto>> response = recipeController.createRecipe(
+                "Test Recipe", "Test Description", "[]", null, "Test Tag");
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Recipe created successfully", response.getBody().getMessage());
+        assertEquals(responseDto, response.getBody().getData());
+        verify(recipeService).createRecipe("Test Recipe", "Test Description", "[]", null, "Test Tag");
+    }
+
+    @Test
+    void testCreateRecipeJson() {
         when(recipeService.createRecipe(createDto)).thenReturn(responseDto);
 
-        ResponseEntity<ApiResponse<RecipeResponseDto>> response = recipeController.createRecipe(createDto);
+        ResponseEntity<ApiResponse<RecipeResponseDto>> response = recipeController.createRecipeJson(createDto);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals("Recipe created successfully", response.getBody().getMessage());
         assertEquals(responseDto, response.getBody().getData());
@@ -136,10 +156,26 @@ class RecipeControllerTest {
     }
 
     @Test
-    void testUpdateRecipe() {
+    void testUpdateRecipe() throws IOException {
+        when(recipeService.updateRecipe(eq(1L), eq("Updated Recipe"), eq("Updated Description"), eq(null), eq(null),
+                eq("Updated Tag"))).thenReturn(responseDto);
+
+        ResponseEntity<ApiResponse<RecipeResponseDto>> response = recipeController.updateRecipe(
+                1L, "Updated Recipe", "Updated Description", null, null, "Updated Tag");
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Recipe updated successfully", response.getBody().getMessage());
+        assertEquals(responseDto, response.getBody().getData());
+        verify(recipeService).updateRecipe(eq(1L), eq("Updated Recipe"), eq("Updated Description"), eq(null), eq(null),
+                eq("Updated Tag"));
+    }
+
+    @Test
+    void testUpdateRecipeJson() {
         when(recipeService.updateRecipe(1L, updateDto)).thenReturn(responseDto);
 
-        ResponseEntity<ApiResponse<RecipeResponseDto>> response = recipeController.updateRecipe(1L, updateDto);
+        ResponseEntity<ApiResponse<RecipeResponseDto>> response = recipeController.updateRecipeJson(1L, updateDto);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
