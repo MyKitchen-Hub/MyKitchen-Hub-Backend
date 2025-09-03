@@ -3,6 +3,7 @@ package femcoders25.mykitchen_hub.recipe.controller;
 import femcoders25.mykitchen_hub.common.dto.ApiResponse;
 import femcoders25.mykitchen_hub.ingredient.dto.IngredientDto;
 import femcoders25.mykitchen_hub.recipe.dto.RecipeCreateDto;
+import femcoders25.mykitchen_hub.recipe.dto.RecipeListDto;
 import femcoders25.mykitchen_hub.recipe.dto.RecipeResponseDto;
 import femcoders25.mykitchen_hub.recipe.dto.RecipeUpdateDto;
 import femcoders25.mykitchen_hub.recipe.service.RecipeService;
@@ -20,7 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,7 +39,8 @@ class RecipeControllerTest {
     private RecipeCreateDto createDto;
     private RecipeUpdateDto updateDto;
     private RecipeResponseDto responseDto;
-    private Page<RecipeResponseDto> recipePage;
+    private Page<RecipeListDto> recipePage;
+    private Page<RecipeResponseDto> searchPage;
 
     @BeforeEach
     void setUp() {
@@ -48,8 +49,10 @@ class RecipeControllerTest {
                 "Updated Tag");
         responseDto = new RecipeResponseDto(1L, "Test Recipe", "Test Description", List.<IngredientDto>of(), null,
                 "Test Tag",
-                null, null, 1L, "testuser");
-        recipePage = new PageImpl<>(List.<RecipeResponseDto>of(responseDto));
+                List.of(), null, null, 1L, "testuser");
+        RecipeListDto listDto = new RecipeListDto(1L, "Test Recipe", "Test Description", null, "Test Tag", null, null);
+        recipePage = new PageImpl<>(List.<RecipeListDto>of(listDto));
+        searchPage = new PageImpl<>(List.<RecipeResponseDto>of(responseDto));
     }
 
     @Test
@@ -96,7 +99,7 @@ class RecipeControllerTest {
     void testGetAllRecipes() {
         when(recipeService.getAllRecipes(any(Pageable.class))).thenReturn(recipePage);
 
-        ResponseEntity<ApiResponse<Page<RecipeResponseDto>>> response = recipeController.getAllRecipes(0, 10, "id",
+        ResponseEntity<ApiResponse<Page<RecipeListDto>>> response = recipeController.getAllRecipes(0, 10, "id",
                 "asc");
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -121,7 +124,7 @@ class RecipeControllerTest {
 
     @Test
     void testSearchRecipesByIngredient() {
-        when(recipeService.searchRecipesByIngredient(eq("tomato"), any(Pageable.class))).thenReturn(recipePage);
+        when(recipeService.searchRecipesByIngredient(eq("tomato"), any(Pageable.class))).thenReturn(searchPage);
 
         ResponseEntity<ApiResponse<Page<RecipeResponseDto>>> response = recipeController
                 .searchRecipesByIngredient("tomato", 0, 10);
@@ -133,7 +136,7 @@ class RecipeControllerTest {
 
     @Test
     void testSearchRecipesByTag() {
-        when(recipeService.searchRecipesByTag(eq("italian"), any(Pageable.class))).thenReturn(recipePage);
+        when(recipeService.searchRecipesByTag(eq("italian"), any(Pageable.class))).thenReturn(searchPage);
 
         ResponseEntity<ApiResponse<Page<RecipeResponseDto>>> response = recipeController.searchRecipesByTag("italian",
                 0, 10);
@@ -145,7 +148,7 @@ class RecipeControllerTest {
 
     @Test
     void testSearchRecipesByTitle() {
-        when(recipeService.searchRecipesByTitle(eq("pasta"), any(Pageable.class))).thenReturn(recipePage);
+        when(recipeService.searchRecipesByTitle(eq("pasta"), any(Pageable.class))).thenReturn(searchPage);
 
         ResponseEntity<ApiResponse<Page<RecipeResponseDto>>> response = recipeController.searchRecipesByTitle("pasta",
                 0, 10);

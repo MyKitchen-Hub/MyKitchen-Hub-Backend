@@ -7,6 +7,7 @@ import femcoders25.mykitchen_hub.common.exception.ResourceNotFoundException;
 import femcoders25.mykitchen_hub.common.exception.UnauthorizedOperationException;
 import femcoders25.mykitchen_hub.ingredient.dto.IngredientDto;
 import femcoders25.mykitchen_hub.recipe.dto.RecipeCreateDto;
+import femcoders25.mykitchen_hub.recipe.dto.RecipeListDto;
 import femcoders25.mykitchen_hub.recipe.dto.RecipeResponseDto;
 import femcoders25.mykitchen_hub.recipe.dto.RecipeUpdateDto;
 import femcoders25.mykitchen_hub.recipe.dto.RecipeMapper;
@@ -100,9 +101,9 @@ public class RecipeService {
     }
 
     @Transactional(readOnly = true)
-    public Page<RecipeResponseDto> getAllRecipes(Pageable pageable) {
+    public Page<RecipeListDto> getAllRecipes(Pageable pageable) {
         Page<Recipe> recipePage = recipeRepository.findAll(pageable);
-        return recipePage.map(RecipeMapper::toRecipeResponseDto);
+        return recipePage.map(RecipeMapper::toRecipeListDto);
     }
 
     @Transactional(readOnly = true)

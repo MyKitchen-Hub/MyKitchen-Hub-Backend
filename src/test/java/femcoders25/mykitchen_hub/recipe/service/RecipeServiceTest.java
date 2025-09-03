@@ -61,9 +61,6 @@ class RecipeServiceTest {
 
         createDto = new RecipeCreateDto("Test Recipe", "Test Description", List.of(), null, "Test Tag");
         updateDto = new RecipeUpdateDto("Updated Recipe", "Updated Description", List.of(), null, "Updated Tag");
-        RecipeResponseDto responseDto = new RecipeResponseDto(1L, "Test Recipe", "Test Description", List.of(), null,
-                "Test Tag",
-                null, null, 1L, "testuser");
         pageable = PageRequest.of(0, 10);
     }
 
@@ -138,7 +135,7 @@ class RecipeServiceTest {
         Page<Recipe> recipePage = new PageImpl<>(Collections.singletonList(recipe));
         when(recipeRepository.findAll(pageable)).thenReturn(recipePage);
 
-        Page<RecipeResponseDto> result = recipeService.getAllRecipes(pageable);
+        Page<RecipeListDto> result = recipeService.getAllRecipes(pageable);
 
         assertNotNull(result);
         assertEquals(1, result.getTotalElements());
