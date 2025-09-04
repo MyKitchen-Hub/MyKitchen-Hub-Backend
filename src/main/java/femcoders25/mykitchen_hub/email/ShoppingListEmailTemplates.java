@@ -5,14 +5,19 @@ import femcoders25.mykitchen_hub.user.entity.User;
 public class ShoppingListEmailTemplates {
         public static String getShoppingListEmailPlainText(User user, String shoppingList) {
                 return String.format(
-                                "Hello %s! 🛒\n\n" +
-                                                "Here is your freshly generated shopping list from MyKitchen Hub:\n\n" +
-                                                "%s\n\n" +
-                                                "📎 A PDF version of this shopping list is attached to this email for easy printing and offline use.\n\n"
-                                                +
-                                                "Happy cooking! 🍳\n\n" +
-                                                "Best regards,\n" +
-                                                "MyKitchen Hub Team 🚀",
+                        """
+                                Hello %s! 🛒
+                                
+                                Here is your freshly generated shopping list from MyKitchen Hub:
+                                
+                                %s
+                                
+                                📎 A PDF version of this shopping list is attached to this email for easy printing and offline use.
+                                
+                                Happy cooking! 🍳
+                                
+                                Best regards,
+                                MyKitchen Hub Team 🚀""",
                                 user.getUsername(),
                                 shoppingList);
         }

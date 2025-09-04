@@ -270,4 +270,47 @@ class LikeServiceTest {
 
         assertThrows(ResourceNotFoundException.class, () -> likeService.likeRecipe(1L, 1L));
     }
+
+    @Test
+    void getLikeStats_WithNullUserId_ShouldReturnStatsWithoutUserInfo() {
+        when(recipeRepository.findById(1L)).thenReturn(Optional.of(recipe));
+        when(likeRepository.countLikesByRecipe(recipe)).thenReturn(15L);
+        when(likeRepository.countDislikesByRecipe(recipe)).thenReturn(5L);
+
+        LikeStatsDto result = likeService.getLikeStats(null, 1L);
+
+        assertNotNull(result);
+        assertEquals(15L, result.likesCount());
+        assertEquals(5L, result.dislikesCount());
+        assertFalse(result.userLiked());
+        assertFalse(result.userDisliked());
+
+        verify(recipeRepository).findById(1L);
+        verify(likeRepository).countLikesByRecipe(recipe);
+        verify(likeRepository).countDislikesByRecipe(recipe);
+        verify(likeRepository, never()).findByUserAndRecipe(any(), any());
+    }
+
+    @Test
+    void getLikeStats_WithValidUserId_ShouldReturnStatsWithUserInfo() {
+        when(recipeRepository.findById(1L)).thenReturn(Optional.of(recipe));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(likeRepository.countLikesByRecipe(recipe)).thenReturn(15L);
+        when(likeRepository.countDislikesByRecipe(recipe)).thenReturn(5L);
+        when(likeRepository.findByUserAndRecipe(user, recipe)).thenReturn(Optional.of(existingLike));
+
+        LikeStatsDto result = likeService.getLikeStats(1L, 1L);
+
+        assertNotNull(result);
+        assertEquals(15L, result.likesCount());
+        assertEquals(5L, result.dislikesCount());
+        assertTrue(result.userLiked());
+        assertFalse(result.userDisliked());
+
+        verify(recipeRepository).findById(1L);
+        verify(userRepository).findById(1L);
+        verify(likeRepository).countLikesByRecipe(recipe);
+        verify(likeRepository).countDislikesByRecipe(recipe);
+        verify(likeRepository).findByUserAndRecipe(user, recipe);
+    }
 }

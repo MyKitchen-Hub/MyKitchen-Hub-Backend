@@ -158,8 +158,6 @@ class UserServiceTest {
     void getAllUsers_EmptyPage_ReturnsEmptyPage() {
         Pageable pageable = Pageable.unpaged();
         Page<User> emptyUserPage = new PageImpl<>(new ArrayList<>());
-        Page<UserResponseDto> expectedEmptyPage = new PageImpl<>(new ArrayList<>());
-
         when(userRepository.findAll(pageable)).thenReturn(emptyUserPage);
 
         Page<UserResponseDto> result = userService.getAllUsers(pageable);

@@ -1,7 +1,6 @@
 package femcoders25.mykitchen_hub.user.dto;
 
 import femcoders25.mykitchen_hub.user.entity.Role;
-import femcoders25.mykitchen_hub.user.entity.User;
 
 import java.time.LocalDateTime;
 
