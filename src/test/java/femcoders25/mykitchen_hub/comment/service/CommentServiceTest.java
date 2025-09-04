@@ -5,6 +5,7 @@ import femcoders25.mykitchen_hub.comment.dto.CommentResponseDto;
 import femcoders25.mykitchen_hub.comment.entity.Comment;
 import femcoders25.mykitchen_hub.comment.repository.CommentRepository;
 import femcoders25.mykitchen_hub.common.exception.ResourceNotFoundException;
+import femcoders25.mykitchen_hub.common.exception.UnauthorizedOperationException;
 import femcoders25.mykitchen_hub.recipe.entity.Recipe;
 import femcoders25.mykitchen_hub.recipe.repository.RecipeRepository;
 import femcoders25.mykitchen_hub.user.entity.User;
@@ -150,5 +151,44 @@ class CommentServiceTest {
         assertEquals(comment2.getId(), result.get(1).id());
 
         verify(commentRepository).findByRecipeIdOrderByCreatedAtDesc(1L);
+    }
+
+    @Test
+    void testDeleteComment_Success() {
+        when(commentRepository.findById(1L)).thenReturn(Optional.of(comment));
+        when(userService.getCurrentUser()).thenReturn(user);
+
+        commentService.deleteComment(1L);
+
+        verify(commentRepository).findById(1L);
+        verify(userService).getCurrentUser();
+        verify(commentRepository).deleteById(1L);
+    }
+
+    @Test
+    void testDeleteComment_CommentNotFound() {
+        when(commentRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> commentService.deleteComment(1L));
+
+        verify(commentRepository).findById(1L);
+        verify(userService, never()).getCurrentUser();
+        verify(commentRepository, never()).deleteById(anyLong());
+    }
+
+    @Test
+    void testDeleteComment_UnauthorizedUser() {
+        User otherUser = new User();
+        otherUser.setId(999L);
+        otherUser.setUsername("otheruser");
+
+        when(commentRepository.findById(1L)).thenReturn(Optional.of(comment));
+        when(userService.getCurrentUser()).thenReturn(otherUser);
+
+        assertThrows(UnauthorizedOperationException.class, () -> commentService.deleteComment(1L));
+
+        verify(commentRepository).findById(1L);
+        verify(userService).getCurrentUser();
+        verify(commentRepository, never()).deleteById(anyLong());
     }
 }

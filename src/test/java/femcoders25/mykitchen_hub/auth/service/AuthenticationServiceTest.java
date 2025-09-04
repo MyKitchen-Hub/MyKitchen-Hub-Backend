@@ -2,6 +2,7 @@ package femcoders25.mykitchen_hub.auth.service;
 
 import femcoders25.mykitchen_hub.auth.dto.AuthenticationRequest;
 import femcoders25.mykitchen_hub.auth.dto.AuthenticationResponse;
+import femcoders25.mykitchen_hub.auth.dto.RefreshTokenRequest;
 import femcoders25.mykitchen_hub.user.dto.UserRegistrationDto;
 import femcoders25.mykitchen_hub.user.entity.Role;
 import femcoders25.mykitchen_hub.user.entity.User;
@@ -133,5 +134,98 @@ class AuthenticationServiceTest {
 
                 verify(tokenBlacklistService).blacklistToken(accessToken);
                 verify(tokenBlacklistService).blacklistToken(refreshToken);
+        }
+
+        @Test
+        void logout_WithNullRefreshToken_Success() {
+                String accessToken = "test-access-token";
+
+                authenticationService.logout(accessToken, null);
+
+                verify(tokenBlacklistService).blacklistToken(accessToken);
+                verify(tokenBlacklistService, never()).blacklistToken(null);
+        }
+
+        @Test
+        void refreshToken_Success() {
+                String oldRefreshToken = "old-refresh-token";
+                String newAccessToken = "new-access-token";
+                String newRefreshToken = "new-refresh-token";
+                String username = "testuser";
+
+                when(jwtService.isRefreshTokenValid(oldRefreshToken)).thenReturn(true);
+                when(jwtService.extractUsername(oldRefreshToken)).thenReturn(username);
+                when(userService.findByUsername(username)).thenReturn(Optional.of(createdUser));
+                when(jwtService.generateToken(createdUser)).thenReturn(newAccessToken);
+                when(jwtService.generateRefreshToken(createdUser)).thenReturn(newRefreshToken);
+
+                AuthenticationResponse response = authenticationService.refreshToken(
+                                new RefreshTokenRequest(oldRefreshToken));
+
+                assertNotNull(response);
+                assertEquals(newAccessToken, response.accessToken());
+                assertEquals(newRefreshToken, response.refreshToken());
+
+                verify(jwtService).isRefreshTokenValid(oldRefreshToken);
+                verify(jwtService).extractUsername(oldRefreshToken);
+                verify(userService).findByUsername(username);
+                verify(jwtService).generateToken(createdUser);
+                verify(jwtService).generateRefreshToken(createdUser);
+                verify(tokenBlacklistService).blacklistToken(oldRefreshToken);
+        }
+
+        @Test
+        void refreshToken_InvalidRefreshToken_ThrowsException() {
+                String invalidRefreshToken = "invalid-refresh-token";
+
+                when(jwtService.isRefreshTokenValid(invalidRefreshToken)).thenReturn(false);
+
+                IllegalArgumentException exception = assertThrows(
+                                IllegalArgumentException.class,
+                                () -> authenticationService.refreshToken(
+                                                new RefreshTokenRequest(invalidRefreshToken)));
+
+                assertEquals("Invalid refresh token", exception.getMessage());
+                verify(jwtService).isRefreshTokenValid(invalidRefreshToken);
+                verify(jwtService, never()).extractUsername(anyString());
+                verify(userService, never()).findByUsername(anyString());
+        }
+
+        @Test
+        void refreshToken_UserNotFound_ThrowsException() {
+                String validRefreshToken = "valid-refresh-token";
+                String username = "nonexistentuser";
+
+                when(jwtService.isRefreshTokenValid(validRefreshToken)).thenReturn(true);
+                when(jwtService.extractUsername(validRefreshToken)).thenReturn(username);
+                when(userService.findByUsername(username)).thenReturn(Optional.empty());
+
+                IllegalArgumentException exception = assertThrows(
+                                IllegalArgumentException.class,
+                                () -> authenticationService.refreshToken(
+                                                new RefreshTokenRequest(validRefreshToken)));
+
+                assertEquals("User not found", exception.getMessage());
+                verify(jwtService).isRefreshTokenValid(validRefreshToken);
+                verify(jwtService).extractUsername(validRefreshToken);
+                verify(userService).findByUsername(username);
+                verify(jwtService, never()).generateToken(any());
+        }
+
+        @Test
+        void authenticate_UserNotFound_ThrowsException() {
+                when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                                .thenReturn(null);
+                when(userService.findByUsername(validAuthRequest.username()))
+                                .thenReturn(Optional.empty());
+
+                IllegalArgumentException exception = assertThrows(
+                                IllegalArgumentException.class,
+                                () -> authenticationService.authenticate(validAuthRequest));
+
+                assertEquals("User not found", exception.getMessage());
+                verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
+                verify(userService).findByUsername(validAuthRequest.username());
+                verify(jwtService, never()).generateToken(any());
         }
 }

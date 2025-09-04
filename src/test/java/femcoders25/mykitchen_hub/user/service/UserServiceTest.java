@@ -288,4 +288,118 @@ class UserServiceTest {
             assertFalse(result);
         }
     }
+
+    @Test
+    void getCurrentUser_Success() {
+        try (MockedStatic<SecurityContextHolder> mockedSecurityContext = mockStatic(SecurityContextHolder.class)) {
+            Authentication mockAuth = mock(Authentication.class);
+            when(mockAuth.getName()).thenReturn("testuser");
+
+            SecurityContext mockContext = mock(SecurityContext.class);
+            when(mockContext.getAuthentication()).thenReturn(mockAuth);
+            mockedSecurityContext.when(SecurityContextHolder::getContext).thenReturn(mockContext);
+
+            when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(savedUser));
+
+            User result = userService.getCurrentUser();
+
+            assertNotNull(result);
+            assertEquals(savedUser, result);
+        }
+    }
+
+    @Test
+    void getCurrentUserId_Success() {
+        try (MockedStatic<SecurityContextHolder> mockedSecurityContext = mockStatic(SecurityContextHolder.class)) {
+            Authentication mockAuth = mock(Authentication.class);
+            when(mockAuth.getName()).thenReturn("testuser");
+
+            SecurityContext mockContext = mock(SecurityContext.class);
+            when(mockContext.getAuthentication()).thenReturn(mockAuth);
+            mockedSecurityContext.when(SecurityContextHolder::getContext).thenReturn(mockContext);
+
+            when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(savedUser));
+
+            Long result = userService.getCurrentUserId();
+
+            assertEquals(1L, result);
+        }
+    }
+
+    @Test
+    void getCurrentUserOptional_WithAuthenticatedUser_ReturnsUser() {
+        try (MockedStatic<SecurityContextHolder> mockedSecurityContext = mockStatic(SecurityContextHolder.class)) {
+            Authentication mockAuth = mock(Authentication.class);
+            when(mockAuth.getName()).thenReturn("testuser");
+            when(mockAuth.isAuthenticated()).thenReturn(true);
+
+            SecurityContext mockContext = mock(SecurityContext.class);
+            when(mockContext.getAuthentication()).thenReturn(mockAuth);
+            mockedSecurityContext.when(SecurityContextHolder::getContext).thenReturn(mockContext);
+
+            when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(savedUser));
+
+            Optional<User> result = userService.getCurrentUserOptional();
+
+            assertTrue(result.isPresent());
+            assertEquals(savedUser, result.get());
+        }
+    }
+
+    @Test
+    void getCurrentUserOptional_WithAnonymousUser_ReturnsEmpty() {
+        try (MockedStatic<SecurityContextHolder> mockedSecurityContext = mockStatic(SecurityContextHolder.class)) {
+            Authentication mockAuth = mock(Authentication.class);
+            when(mockAuth.getName()).thenReturn("anonymousUser");
+            when(mockAuth.isAuthenticated()).thenReturn(true);
+
+            SecurityContext mockContext = mock(SecurityContext.class);
+            when(mockContext.getAuthentication()).thenReturn(mockAuth);
+            mockedSecurityContext.when(SecurityContextHolder::getContext).thenReturn(mockContext);
+
+            Optional<User> result = userService.getCurrentUserOptional();
+
+            assertFalse(result.isPresent());
+        }
+    }
+
+    @Test
+    void getCurrentUserIdOptional_WithAuthenticatedUser_ReturnsUserId() {
+        try (MockedStatic<SecurityContextHolder> mockedSecurityContext = mockStatic(SecurityContextHolder.class)) {
+            Authentication mockAuth = mock(Authentication.class);
+            when(mockAuth.getName()).thenReturn("testuser");
+            when(mockAuth.isAuthenticated()).thenReturn(true);
+
+            SecurityContext mockContext = mock(SecurityContext.class);
+            when(mockContext.getAuthentication()).thenReturn(mockAuth);
+            mockedSecurityContext.when(SecurityContextHolder::getContext).thenReturn(mockContext);
+
+            when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(savedUser));
+
+            Optional<Long> result = userService.getCurrentUserIdOptional();
+
+            assertTrue(result.isPresent());
+            assertEquals(1L, result.get());
+        }
+    }
+
+    @Test
+    void updateUser_WithNullUpdateDto_ThrowsException() {
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> userService.updateUser(1L, null));
+
+        assertEquals("Update data cannot be null", exception.getMessage());
+    }
+
+    @Test
+    void findByUsername_UserDoesNotExist_ReturnsEmpty() {
+        String username = "nonexistent";
+        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+
+        Optional<User> result = userService.findByUsername(username);
+
+        assertFalse(result.isPresent());
+        verify(userRepository).findByUsername(username);
+    }
 }

@@ -14,6 +14,8 @@ import femcoders25.mykitchen_hub.shoppinglist.entity.ShoppingList;
 import femcoders25.mykitchen_hub.shoppinglist.repository.ListItemRepository;
 import femcoders25.mykitchen_hub.shoppinglist.repository.ShoppingListRepository;
 import femcoders25.mykitchen_hub.user.entity.User;
+import femcoders25.mykitchen_hub.email.PdfService;
+import femcoders25.mykitchen_hub.email.EmailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +28,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
 class ShoppingListServiceTest {
@@ -41,6 +44,12 @@ class ShoppingListServiceTest {
 
     @Mock
     private ShoppingListMapper shoppingListMapper;
+
+    @Mock
+    private PdfService pdfService;
+
+    @Mock
+    private EmailService emailService;
 
     @InjectMocks
     private ShoppingListService shoppingListService;
@@ -80,6 +89,8 @@ class ShoppingListServiceTest {
 
         testRecipe1.setIngredients(Arrays.asList(ingredient1, ingredient2));
         testRecipe2.setIngredients(List.of(ingredient3));
+
+        lenient().when(pdfService.generateShoppingListPdf(any(), any())).thenReturn(new byte[0]);
     }
 
     @Test
@@ -89,7 +100,9 @@ class ShoppingListServiceTest {
                 Arrays.asList(1L, 2L));
 
         when(recipeRepository.findAllById(any())).thenReturn(Arrays.asList(testRecipe1, testRecipe2));
-        when(shoppingListRepository.save(any())).thenReturn(new ShoppingList());
+        ShoppingList savedShoppingList = new ShoppingList();
+        savedShoppingList.setName("My Shopping List");
+        when(shoppingListRepository.save(any())).thenReturn(savedShoppingList);
         when(listItemRepository.saveAll(any())).thenReturn(List.of(new ListItem()));
 
         ShoppingListResponseDto expectedResponse = new ShoppingListResponseDto(
@@ -222,6 +235,154 @@ class ShoppingListServiceTest {
         verify(listItemRepository).deleteAll(shoppingList.getListItems());
         verify(listItemRepository).saveAll(any());
 
+        assertEquals("Recipe 1, Recipe 2", shoppingList.getGeneratedFromRecipe());
+    }
+
+    @Test
+    void updateShoppingList_NotFound() {
+        Long listId = 999L;
+        ShoppingListUpdateDto updateDto = new ShoppingListUpdateDto("Updated Name", List.of(1L, 2L));
+
+        when(shoppingListRepository.findById(listId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> shoppingListService.updateShoppingList(listId, updateDto, testUser));
+
+        verify(shoppingListRepository).findById(listId);
+        verify(shoppingListRepository, never()).save(any());
+    }
+
+    @Test
+    void updateShoppingList_Unauthorized() {
+        Long listId = 1L;
+        User otherUser = new User();
+        otherUser.setId(999L);
+
+        ShoppingList shoppingList = new ShoppingList();
+        shoppingList.setId(listId);
+        shoppingList.setGeneratedBy(otherUser);
+
+        ShoppingListUpdateDto updateDto = new ShoppingListUpdateDto("Updated Name", List.of(1L, 2L));
+
+        when(shoppingListRepository.findById(listId)).thenReturn(Optional.of(shoppingList));
+
+        assertThrows(UnauthorizedOperationException.class,
+                () -> shoppingListService.updateShoppingList(listId, updateDto, testUser));
+
+        verify(shoppingListRepository).findById(listId);
+        verify(shoppingListRepository, never()).save(any());
+    }
+
+    @Test
+    void updateShoppingList_WithNullRecipeIds_Success() {
+        Long listId = 1L;
+        ShoppingListUpdateDto updateDto = new ShoppingListUpdateDto("Updated Name", null);
+
+        ShoppingList shoppingList = new ShoppingList();
+        shoppingList.setId(listId);
+        shoppingList.setGeneratedBy(testUser);
+        shoppingList.setListItems(new ArrayList<>());
+
+        when(shoppingListRepository.findById(listId)).thenReturn(Optional.of(shoppingList));
+        when(shoppingListRepository.save(any())).thenReturn(shoppingList);
+
+        ShoppingListResponseDto expectedResponse = new ShoppingListResponseDto(
+                1L, "Test", "user", null, "recipe", null, null);
+        when(shoppingListMapper.toResponseDto(shoppingList)).thenReturn(expectedResponse);
+
+        ShoppingListResponseDto result = shoppingListService.updateShoppingList(listId, updateDto, testUser);
+
+        assertNotNull(result);
+        verify(shoppingListRepository).save(shoppingList);
+        assertEquals("Updated Name", shoppingList.getName());
+        verify(recipeRepository, never()).findAllById(any());
+        verify(listItemRepository, never()).deleteAll(any());
+        verify(listItemRepository, never()).saveAll(any());
+    }
+
+    @Test
+    void updateShoppingList_WithEmptyRecipeIds_Success() {
+        Long listId = 1L;
+        ShoppingListUpdateDto updateDto = new ShoppingListUpdateDto("Updated Name", List.of());
+
+        ShoppingList shoppingList = new ShoppingList();
+        shoppingList.setId(listId);
+        shoppingList.setGeneratedBy(testUser);
+        shoppingList.setListItems(new ArrayList<>());
+
+        when(shoppingListRepository.findById(listId)).thenReturn(Optional.of(shoppingList));
+        when(shoppingListRepository.save(any())).thenReturn(shoppingList);
+
+        ShoppingListResponseDto expectedResponse = new ShoppingListResponseDto(
+                1L, "Test", "user", null, "recipe", null, null);
+        when(shoppingListMapper.toResponseDto(shoppingList)).thenReturn(expectedResponse);
+
+        ShoppingListResponseDto result = shoppingListService.updateShoppingList(listId, updateDto, testUser);
+
+        assertNotNull(result);
+        verify(shoppingListRepository).save(shoppingList);
+        assertEquals("Updated Name", shoppingList.getName());
+        verify(recipeRepository, never()).findAllById(any());
+        verify(listItemRepository, never()).deleteAll(any());
+        verify(listItemRepository, never()).saveAll(any());
+    }
+
+    @Test
+    void updateShoppingList_WithNewRecipes_SomeRecipesNotFound() {
+        Long listId = 1L;
+        ShoppingListUpdateDto updateDto = new ShoppingListUpdateDto("Updated Name", List.of(1L, 999L));
+
+        ShoppingList shoppingList = new ShoppingList();
+        shoppingList.setId(listId);
+        shoppingList.setGeneratedBy(testUser);
+        shoppingList.setListItems(new ArrayList<>());
+
+        when(shoppingListRepository.findById(listId)).thenReturn(Optional.of(shoppingList));
+        when(recipeRepository.findAllById(any())).thenReturn(Collections.singletonList(testRecipe1));
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> shoppingListService.updateShoppingList(listId, updateDto, testUser));
+
+        verify(shoppingListRepository).findById(listId);
+        verify(recipeRepository).findAllById(updateDto.recipeIds());
+        verify(shoppingListRepository, never()).save(any());
+    }
+
+    @Test
+    void updateShoppingList_WithNewRecipes_WithNullListItems() {
+        Long listId = 1L;
+        ShoppingListUpdateDto updateDto = new ShoppingListUpdateDto("Updated Name", List.of(1L, 2L));
+
+        ShoppingList shoppingList = new ShoppingList();
+        shoppingList.setId(listId);
+        shoppingList.setGeneratedBy(testUser);
+        shoppingList.setListItems(null);
+
+        Recipe recipe1 = new Recipe();
+        recipe1.setId(1L);
+        recipe1.setTitle("Recipe 1");
+
+        Recipe recipe2 = new Recipe();
+        recipe2.setId(2L);
+        recipe2.setTitle("Recipe 2");
+
+        when(shoppingListRepository.findById(listId)).thenReturn(Optional.of(shoppingList));
+        when(shoppingListRepository.save(any())).thenReturn(shoppingList);
+        when(recipeRepository.findAllById(any())).thenReturn(List.of(recipe1, recipe2));
+        when(listItemRepository.saveAll(any())).thenReturn(new ArrayList<>());
+
+        ShoppingListResponseDto expectedResponse = new ShoppingListResponseDto(
+                1L, "Test", "user", null, "recipe", null, null);
+        when(shoppingListMapper.toResponseDto(shoppingList)).thenReturn(expectedResponse);
+
+        ShoppingListResponseDto result = shoppingListService.updateShoppingList(listId, updateDto, testUser);
+
+        assertNotNull(result);
+        verify(shoppingListRepository).save(shoppingList);
+        assertEquals("Updated Name", shoppingList.getName());
+        verify(recipeRepository).findAllById(updateDto.recipeIds());
+        verify(listItemRepository, never()).deleteAll(any());
+        verify(listItemRepository).saveAll(any());
         assertEquals("Recipe 1, Recipe 2", shoppingList.getGeneratedFromRecipe());
     }
 }
