@@ -5,6 +5,8 @@ import femcoders25.mykitchen_hub.comment.dto.CommentResponseDto;
 import femcoders25.mykitchen_hub.ingredient.dto.IngredientDto;
 import femcoders25.mykitchen_hub.ingredient.dto.IngredientMapper;
 import femcoders25.mykitchen_hub.ingredient.entity.Ingredient;
+import femcoders25.mykitchen_hub.like.dto.LikeStatsDto;
+import femcoders25.mykitchen_hub.like.service.LikeService;
 import femcoders25.mykitchen_hub.recipe.entity.Recipe;
 import femcoders25.mykitchen_hub.user.entity.User;
 
@@ -12,7 +14,7 @@ import java.util.List;
 
 public class RecipeMapper {
 
-    public static RecipeResponseDto toRecipeResponseDto(Recipe recipe) {
+    public static RecipeResponseDto toRecipeResponseDto(Recipe recipe, LikeService likeService, Long currentUserId) {
         if (recipe == null) {
             return null;
         }
@@ -25,6 +27,8 @@ public class RecipeMapper {
                 .map(CommentMapper::toCommentResponseDto)
                 .toList();
 
+        LikeStatsDto likeStats = likeService.getLikeStats(currentUserId, recipe.getId());
+
         return new RecipeResponseDto(
                 recipe.getId(),
                 recipe.getTitle(),
@@ -33,16 +37,20 @@ public class RecipeMapper {
                 recipe.getImageUrl(),
                 recipe.getTag(),
                 commentDtos,
+                likeStats,
                 recipe.getCreatedAt(),
                 recipe.getUpdatedAt(),
                 recipe.getCreatedBy() != null ? recipe.getCreatedBy().getId() : null,
                 recipe.getCreatedBy() != null ? recipe.getCreatedBy().getUsername() : null);
     }
 
-    public static RecipeListDto toRecipeListDto(Recipe recipe) {
+    public static RecipeListDto toRecipeListDto(Recipe recipe, LikeService likeService) {
         if (recipe == null) {
             return null;
         }
+
+        long likesCount = likeService.getLikesCount(recipe.getId());
+        long dislikesCount = likeService.getDislikesCount(recipe.getId());
 
         return new RecipeListDto(
                 recipe.getId(),
@@ -50,6 +58,8 @@ public class RecipeMapper {
                 recipe.getDescription(),
                 recipe.getImageUrl(),
                 recipe.getTag(),
+                likesCount,
+                dislikesCount,
                 recipe.getCreatedAt(),
                 recipe.getUpdatedAt());
     }

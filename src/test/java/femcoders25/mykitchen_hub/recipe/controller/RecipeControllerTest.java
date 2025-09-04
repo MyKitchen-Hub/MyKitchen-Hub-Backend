@@ -2,6 +2,7 @@ package femcoders25.mykitchen_hub.recipe.controller;
 
 import femcoders25.mykitchen_hub.common.dto.ApiResponse;
 import femcoders25.mykitchen_hub.ingredient.dto.IngredientDto;
+import femcoders25.mykitchen_hub.like.dto.LikeStatsDto;
 import femcoders25.mykitchen_hub.recipe.dto.RecipeCreateDto;
 import femcoders25.mykitchen_hub.recipe.dto.RecipeListDto;
 import femcoders25.mykitchen_hub.recipe.dto.RecipeResponseDto;
@@ -47,10 +48,12 @@ class RecipeControllerTest {
         createDto = new RecipeCreateDto("Test Recipe", "Test Description", List.<IngredientDto>of(), null, "Test Tag");
         updateDto = new RecipeUpdateDto("Updated Recipe", "Updated Description", List.<IngredientDto>of(), null,
                 "Updated Tag");
+        LikeStatsDto likeStats = new LikeStatsDto(5L, 1L, true, false);
         responseDto = new RecipeResponseDto(1L, "Test Recipe", "Test Description", List.<IngredientDto>of(), null,
                 "Test Tag",
-                List.of(), null, null, 1L, "testuser");
-        RecipeListDto listDto = new RecipeListDto(1L, "Test Recipe", "Test Description", null, "Test Tag", null, null);
+                List.of(), likeStats, null, null, 1L, "testuser");
+        RecipeListDto listDto = new RecipeListDto(1L, "Test Recipe", "Test Description", null, "Test Tag", 5L, 1L, null,
+                null);
         recipePage = new PageImpl<>(List.<RecipeListDto>of(listDto));
         searchPage = new PageImpl<>(List.<RecipeResponseDto>of(responseDto));
     }
