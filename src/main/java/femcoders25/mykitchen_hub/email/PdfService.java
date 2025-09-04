@@ -46,15 +46,17 @@ public class PdfService {
             yPosition = drawTitle(contentStream, page, yPosition, shoppingList.getName());
             yPosition = drawUserInfo(contentStream, page, yPosition, user);
             yPosition = drawShoppingListDetails(contentStream, page, yPosition, shoppingList);
-            yPosition = drawItemsList(contentStream, page, yPosition, shoppingList.getListItems());
-            drawFooter(contentStream, page, yPosition);
-            
-            contentStream.close();
+            boolean streamStillOpen = drawItemsList(contentStream, page, yPosition, shoppingList.getListItems());
+
+            if (streamStillOpen) {
+                drawFooter(contentStream, page, yPosition);
+                contentStream.close();
+            }
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             document.save(baos);
             return baos.toByteArray();
-            
+
         } catch (IOException e) {
             log.error("Failed to generate PDF for shopping list: {}", shoppingList.getId(), e);
             throw new RuntimeException("Failed to generate PDF", e);
@@ -71,36 +73,39 @@ public class PdfService {
         contentStream.newLineAtOffset(titleX, yPosition);
         contentStream.showText(title);
         contentStream.endText();
-        
+
         return yPosition - LINE_HEIGHT - 10;
     }
 
-    private float drawTitle(PDPageContentStream contentStream, PDPage page, float yPosition, String listName) throws IOException {
+    private float drawTitle(PDPageContentStream contentStream, PDPage page, float yPosition, String listName)
+            throws IOException {
         contentStream.setFont(PDType1Font.HELVETICA_BOLD, HEADER_FONT_SIZE);
         contentStream.setNonStrokingColor(0, 0, 0);
-        
+
         String title = "Shopping List: " + listName;
         contentStream.beginText();
         contentStream.newLineAtOffset(MARGIN, yPosition);
         contentStream.showText(title);
         contentStream.endText();
-        
+
         return yPosition - LINE_HEIGHT - 15;
     }
 
-    private float drawUserInfo(PDPageContentStream contentStream, PDPage page, float yPosition, User user) throws IOException {
+    private float drawUserInfo(PDPageContentStream contentStream, PDPage page, float yPosition, User user)
+            throws IOException {
         contentStream.setFont(PDType1Font.HELVETICA, BODY_FONT_SIZE);
-        
+
         String userInfo = "Generated for: " + user.getUsername() + " (" + user.getEmail() + ")";
         contentStream.beginText();
         contentStream.newLineAtOffset(MARGIN, yPosition);
         contentStream.showText(userInfo);
         contentStream.endText();
-        
+
         return yPosition - LINE_HEIGHT - 10;
     }
 
-    private float drawShoppingListDetails(PDPageContentStream contentStream, PDPage page, float yPosition, ShoppingList shoppingList) throws IOException {
+    private float drawShoppingListDetails(PDPageContentStream contentStream, PDPage page, float yPosition,
+            ShoppingList shoppingList) throws IOException {
         contentStream.setFont(PDType1Font.HELVETICA, BODY_FONT_SIZE);
 
         if (shoppingList.getGeneratedFromRecipe() != null && !shoppingList.getGeneratedFromRecipe().isEmpty()) {
@@ -117,11 +122,12 @@ public class PdfService {
         contentStream.newLineAtOffset(MARGIN, yPosition);
         contentStream.showText(createdInfo);
         contentStream.endText();
-        
+
         return yPosition - LINE_HEIGHT - 15;
     }
 
-    private float drawItemsList(PDPageContentStream contentStream, PDPage page, float yPosition, List<ListItem> items) throws IOException {
+    private boolean drawItemsList(PDPageContentStream contentStream, PDPage page, float yPosition, List<ListItem> items)
+            throws IOException {
         contentStream.setFont(PDType1Font.HELVETICA_BOLD, HEADER_FONT_SIZE);
 
         contentStream.beginText();
@@ -131,36 +137,38 @@ public class PdfService {
         yPosition -= LINE_HEIGHT + 5;
 
         contentStream.setFont(PDType1Font.HELVETICA, BODY_FONT_SIZE);
-        
-        for (int i = 0; i < items.size(); i++) {
-            ListItem item = items.get(i);
-            String itemText = String.format("%d. %s - %.1f %s", 
-                i + 1, item.getName(), item.getAmount(), item.getUnit());
-            
-            contentStream.beginText();
-            contentStream.newLineAtOffset(MARGIN + 20, yPosition);
-            contentStream.showText(itemText);
-            contentStream.endText();
-            
-            yPosition -= LINE_HEIGHT;
 
-            if (yPosition < MARGIN + 50) {
-                contentStream.close();
-                return yPosition;
+        if (items != null) {
+            for (int i = 0; i < items.size(); i++) {
+                ListItem item = items.get(i);
+                String itemText = String.format("%d. %s - %.1f %s",
+                        i + 1, item.getName(), item.getAmount(), item.getUnit());
+
+                contentStream.beginText();
+                contentStream.newLineAtOffset(MARGIN + 20, yPosition);
+                contentStream.showText(itemText);
+                contentStream.endText();
+
+                yPosition -= LINE_HEIGHT;
+
+                if (yPosition < MARGIN + 50) {
+                    contentStream.close();
+                    return false;
+                }
             }
         }
-        
-        return yPosition;
+
+        return true;
     }
 
     private void drawFooter(PDPageContentStream contentStream, PDPage page, float yPosition) throws IOException {
         contentStream.setFont(PDType1Font.HELVETICA, 10);
         contentStream.setNonStrokingColor(102, 102, 102);
-        
+
         String footer = "Generated by MyKitchen Hub - Happy cooking!";
         float footerWidth = PDType1Font.HELVETICA.getStringWidth(footer) / 1000 * 10;
         float footerX = (page.getMediaBox().getWidth() - footerWidth) / 2;
-        
+
         contentStream.beginText();
         contentStream.newLineAtOffset(footerX, yPosition);
         contentStream.showText(footer);
