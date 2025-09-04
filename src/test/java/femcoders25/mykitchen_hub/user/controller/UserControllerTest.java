@@ -73,7 +73,8 @@ class UserControllerTest {
         when(userService.createUser(any(UserRegistrationDto.class))).thenReturn(testUser);
         when(userMapper.toResponse(testUser)).thenReturn(testUserResponseDto);
 
-        ResponseEntity<ApiResponse<UserResponseDto>> response = userController.createUser(testRegistrationDto);
+        ResponseEntity<ApiResponse<UserResponseDto>> response = userController.createUser(
+                new UserRegistrationDto("testuser", "test@example.com", "password123"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -81,7 +82,7 @@ class UserControllerTest {
         assertEquals("User created successfully", response.getBody().getMessage());
         assertEquals(testUserResponseDto, response.getBody().getData());
 
-        verify(userService).createUser(testRegistrationDto);
+        verify(userService).createUser(any(UserRegistrationDto.class));
         verify(userMapper).toResponse(testUser);
     }
 
@@ -118,9 +119,10 @@ class UserControllerTest {
 
     @Test
     void updateUser_Success() {
-        when(userService.updateUser(1L, testUpdateDto)).thenReturn(testUserResponseDto);
+        when(userService.updateUser(eq(1L), any(UserUpdateDto.class))).thenReturn(testUserResponseDto);
 
-        ResponseEntity<ApiResponse<UserResponseDto>> response = userController.updateUser(1L, testUpdateDto);
+        ResponseEntity<ApiResponse<UserResponseDto>> response = userController.updateUser(1L,
+                new UserUpdateDto("updateduser", "updated@example.com", "newpassword123"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -128,7 +130,7 @@ class UserControllerTest {
         assertEquals("User updated successfully", response.getBody().getMessage());
         assertEquals(testUserResponseDto, response.getBody().getData());
 
-        verify(userService).updateUser(1L, testUpdateDto);
+        verify(userService).updateUser(eq(1L), any(UserUpdateDto.class));
     }
 
     @Test

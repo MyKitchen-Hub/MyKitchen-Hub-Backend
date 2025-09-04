@@ -39,14 +39,14 @@ class FavoriteControllerTest {
 
     @Test
     void addToFavorites_Success() {
-        FavoriteRequestDto request = new FavoriteRequestDto(1L);
         FavoriteResponseDto response = new FavoriteResponseDto(1L, 1L, 1L, "Test Recipe", LocalDateTime.now());
 
         when(userService.getCurrentUserId()).thenReturn(1L);
         when(favoriteService.addToFavorites(anyLong(), any(FavoriteRequestDto.class)))
                 .thenReturn(response);
 
-        ResponseEntity<ApiResponse<FavoriteResponseDto>> result = favoriteController.addToFavorites(request);
+        ResponseEntity<ApiResponse<FavoriteResponseDto>> result = favoriteController
+                .addToFavorites(new FavoriteRequestDto(1L));
 
         assertEquals(HttpStatus.CREATED, result.getStatusCode());
         assertNotNull(result.getBody());

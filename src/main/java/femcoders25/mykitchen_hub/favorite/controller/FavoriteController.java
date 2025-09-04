@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/favorites")
@@ -33,16 +33,16 @@ public class FavoriteController {
 
     @PostMapping
     @PreAuthorize("hasRole('USER')")
-    @Operation(summary = "Add recipe to favorites", description = "Adds a recipe to user's favorites")
+    @Operation(summary = "Add recipe to favorites", description = "Adds a recipe to user's favorites. Provide the recipe ID to add.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Recipe added to favorites successfully", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Bad request - invalid data", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Recipe not found", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     })
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Favorite request data", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = FavoriteRequestDto.class), examples = @io.swagger.v3.oas.annotations.media.ExampleObject(name = "Add recipe to favorites", value = "{\"recipeId\":1}")))
     public ResponseEntity<ApiResponse<FavoriteResponseDto>> addToFavorites(
-            @Parameter(description = "Favorite request data") @Valid @RequestBody FavoriteRequestDto request) {
-
+            @Valid @RequestBody FavoriteRequestDto request) {
         Long userId = userService.getCurrentUserId();
         FavoriteResponseDto response = favoriteService.addToFavorites(userId, request);
         return ResponseEntity.status(HttpStatus.CREATED)
