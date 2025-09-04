@@ -215,7 +215,7 @@ public class ShoppingListService {
         return shoppingListMapper.toResponseDto(updatedShoppingList);
     }
 
-    public ApiResponse deleteShoppingList(Long id, User user) {
+    public ApiResponse<String> deleteShoppingList(Long id, User user) {
         ShoppingList shoppingList = shoppingListRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Shopping list not found"));
 
@@ -224,10 +224,10 @@ public class ShoppingListService {
         }
 
         shoppingListRepository.delete(shoppingList);
-        return ApiResponse.success("Shopping list deleted successfully");
+        return ApiResponse.<String>success("Shopping list deleted successfully");
     }
 
-    public ApiResponse toggleItemChecked(Long listId, Long itemId, User user) {
+    public ApiResponse<String> toggleItemChecked(Long listId, Long itemId, User user) {
         ShoppingList shoppingList = shoppingListRepository.findById(listId)
                 .orElseThrow(() -> new ResourceNotFoundException("Shopping list not found"));
 
@@ -245,7 +245,7 @@ public class ShoppingListService {
         listItem.setIsChecked(!Boolean.TRUE.equals(listItem.getIsChecked()));
         listItemRepository.save(listItem);
 
-        return ApiResponse.success("Item status updated successfully");
+        return ApiResponse.<String>success("Item status updated successfully");
     }
 
 }

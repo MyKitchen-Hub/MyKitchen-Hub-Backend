@@ -30,13 +30,12 @@ class CommentControllerTest {
     @InjectMocks
     private CommentController commentController;
 
-    private CommentRequestDto commentRequestDto;
     private CommentResponseDto commentResponseDto;
     private List<CommentResponseDto> commentList;
 
     @BeforeEach
     void setUp() {
-        commentRequestDto = new CommentRequestDto("Great recipe!");
+        new CommentRequestDto("Great recipe!");
         commentResponseDto = new CommentResponseDto(
                 1L,
                 "Great recipe!",

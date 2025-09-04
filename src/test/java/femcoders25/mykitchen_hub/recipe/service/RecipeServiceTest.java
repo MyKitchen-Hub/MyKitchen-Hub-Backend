@@ -1,6 +1,6 @@
 package femcoders25.mykitchen_hub.recipe.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import femcoders25.mykitchen_hub.cloudinary.CloudinaryService;
 import femcoders25.mykitchen_hub.common.exception.ResourceNotFoundException;
@@ -33,10 +33,12 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("unchecked")
 class RecipeServiceTest {
 
     @Mock
@@ -306,7 +308,7 @@ class RecipeServiceTest {
 
         try {
             doThrow(new RuntimeException("Invalid JSON")).when(objectMapper)
-                    .readValue(eq(invalidJson), any(com.fasterxml.jackson.core.type.TypeReference.class));
+                    .readValue(anyString(), any(TypeReference.class));
         } catch (Exception e) {
         }
 
@@ -322,7 +324,7 @@ class RecipeServiceTest {
         List<IngredientDto> ingredients = List.of(new IngredientDto("", 200.0, "g"));
 
         doReturn(ingredients).when(objectMapper)
-                .readValue(eq(ingredientsJson), any(com.fasterxml.jackson.core.type.TypeReference.class));
+                .readValue(eq(ingredientsJson), any(TypeReference.class));
 
         assertThrows(IllegalArgumentException.class,
                 () -> recipeService.createRecipe("Test Recipe", "Test Description", ingredientsJson, image,
@@ -337,7 +339,7 @@ class RecipeServiceTest {
         List<IngredientDto> ingredients = List.of(new IngredientDto(null, 200.0, "g"));
 
         doReturn(ingredients).when(objectMapper)
-                .readValue(eq(ingredientsJson), any(com.fasterxml.jackson.core.type.TypeReference.class));
+                .readValue(eq(ingredientsJson), any(TypeReference.class));
 
         assertThrows(IllegalArgumentException.class,
                 () -> recipeService.createRecipe("Test Recipe", "Test Description", ingredientsJson, image,
@@ -352,7 +354,7 @@ class RecipeServiceTest {
         List<IngredientDto> ingredients = List.of(new IngredientDto("Flour", 0.0, "g"));
 
         doReturn(ingredients).when(objectMapper)
-                .readValue(eq(ingredientsJson), any(com.fasterxml.jackson.core.type.TypeReference.class));
+                .readValue(eq(ingredientsJson), any(TypeReference.class));
 
         assertThrows(IllegalArgumentException.class,
                 () -> recipeService.createRecipe("Test Recipe", "Test Description", ingredientsJson, image,
@@ -367,7 +369,7 @@ class RecipeServiceTest {
         List<IngredientDto> ingredients = List.of(new IngredientDto("Flour", null, "g"));
 
         doReturn(ingredients).when(objectMapper)
-                .readValue(eq(ingredientsJson), any(com.fasterxml.jackson.core.type.TypeReference.class));
+                .readValue(eq(ingredientsJson), any(TypeReference.class));
 
         assertThrows(IllegalArgumentException.class,
                 () -> recipeService.createRecipe("Test Recipe", "Test Description", ingredientsJson, image,
@@ -382,7 +384,7 @@ class RecipeServiceTest {
         List<IngredientDto> ingredients = List.of(new IngredientDto("Flour", 200.0, ""));
 
         doReturn(ingredients).when(objectMapper)
-                .readValue(eq(ingredientsJson), any(com.fasterxml.jackson.core.type.TypeReference.class));
+                .readValue(eq(ingredientsJson), any(TypeReference.class));
 
         assertThrows(IllegalArgumentException.class,
                 () -> recipeService.createRecipe("Test Recipe", "Test Description", ingredientsJson, image,
@@ -397,7 +399,7 @@ class RecipeServiceTest {
         List<IngredientDto> ingredients = List.of(new IngredientDto("Flour", 200.0, null));
 
         doReturn(ingredients).when(objectMapper)
-                .readValue(eq(ingredientsJson), any(com.fasterxml.jackson.core.type.TypeReference.class));
+                .readValue(eq(ingredientsJson), any(TypeReference.class));
 
         assertThrows(IllegalArgumentException.class,
                 () -> recipeService.createRecipe("Test Recipe", "Test Description", ingredientsJson, image,

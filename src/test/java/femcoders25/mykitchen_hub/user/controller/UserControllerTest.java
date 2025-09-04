@@ -41,8 +41,6 @@ class UserControllerTest {
 
     private User testUser;
     private UserResponseDto testUserResponseDto;
-    private UserRegistrationDto testRegistrationDto;
-    private UserUpdateDto testUpdateDto;
     private Pageable pageable;
 
     @BeforeEach
@@ -59,10 +57,10 @@ class UserControllerTest {
                 1L, "testuser", "test@example.com",
                 Role.USER, LocalDateTime.now(), LocalDateTime.now());
 
-        testRegistrationDto = new UserRegistrationDto(
+        new UserRegistrationDto(
                 "newuser", "newuser@example.com", "password123");
 
-        testUpdateDto = new UserUpdateDto(
+        new UserUpdateDto(
                 "updateduser", "updated@example.com", "newpassword123");
 
         pageable = Pageable.unpaged();

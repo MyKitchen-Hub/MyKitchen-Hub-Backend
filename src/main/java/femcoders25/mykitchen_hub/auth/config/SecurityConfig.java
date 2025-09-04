@@ -44,6 +44,8 @@ public class SecurityConfig {
                                                 .permitAll()
                                                 .requestMatchers(HttpMethod.GET, "/api/favorites/recipes/*/count")
                                                 .permitAll()
+                                                .requestMatchers(HttpMethod.GET, "/api/likes/*/stats")
+                                                .permitAll()
 
                                                 // Public auth endpoints (register and login)
                                                 .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()

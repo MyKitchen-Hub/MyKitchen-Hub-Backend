@@ -65,7 +65,7 @@ public class ShoppingListController {
                         @AuthenticationPrincipal User user) {
 
                 ShoppingListResponseDto response = shoppingListService.getShoppingListById(id, user);
-                return ResponseEntity.ok(ApiResponse.success(response));
+                return ResponseEntity.ok(ApiResponse.<ShoppingListResponseDto>success(response));
         }
 
         @Operation(summary = "Get user shopping lists", description = "Retrieves all shopping lists for the authenticated user, optionally filtered by name")
@@ -86,7 +86,7 @@ public class ShoppingListController {
                         response = shoppingListService.getUserShoppingLists(user);
                 }
 
-                return ResponseEntity.ok(ApiResponse.success(response));
+                return ResponseEntity.ok(ApiResponse.<List<ShoppingListResponseDto>>success(response));
         }
 
         @Operation(summary = "Update shopping list", description = "Updates an existing shopping list for the authenticated user. Name must be 1-100 characters, recipeIds is a list of recipe IDs to include.")

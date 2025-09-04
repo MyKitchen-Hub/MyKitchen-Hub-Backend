@@ -72,9 +72,9 @@ public class JwtService {
     public boolean isTokenValid(String token, UserDetails userDetails) {
         try {
             final String username = extractUsername(token);
-            return (username.equals(userDetails.getUsername())) && 
-                   !isTokenExpired(token) && 
-                   !tokenBlacklistService.isTokenBlacklisted(token);
+            return (username.equals(userDetails.getUsername())) &&
+                    isTokenExpired(token) &&
+                    tokenBlacklistService.isTokenBlacklisted(token);
         } catch (Exception e) {
             log.error("Error validating JWT token for user: {}", userDetails.getUsername(), e);
             return false;
@@ -83,7 +83,7 @@ public class JwtService {
 
     public boolean isRefreshTokenValid(String token) {
         try {
-            return !isTokenExpired(token) && !tokenBlacklistService.isTokenBlacklisted(token);
+            return isTokenExpired(token) && tokenBlacklistService.isTokenBlacklisted(token);
         } catch (Exception e) {
             log.error("Error validating refresh token", e);
             return false;
@@ -91,7 +91,7 @@ public class JwtService {
     }
 
     private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+        return !extractExpiration(token).before(new Date());
     }
 
     private Date extractExpiration(String token) {

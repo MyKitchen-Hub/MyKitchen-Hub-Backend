@@ -29,13 +29,12 @@ class IngredientControllerTest {
     private IngredientController ingredientController;
 
     private IngredientResponseDto ingredientResponse;
-    private IngredientUpdateDto updateDto;
     private List<IngredientResponseDto> ingredientsList;
 
     @BeforeEach
     void setUp() {
         ingredientResponse = new IngredientResponseDto(1L, "Test Ingredient", 100.0, "g", 1L);
-        updateDto = new IngredientUpdateDto("Updated Ingredient", 200.0, "kg");
+        new IngredientUpdateDto("Updated Ingredient", 200.0, "kg");
         ingredientsList = Collections.singletonList(ingredientResponse);
     }
 

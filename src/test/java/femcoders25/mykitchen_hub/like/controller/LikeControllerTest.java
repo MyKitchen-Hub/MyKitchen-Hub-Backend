@@ -139,4 +139,25 @@ class LikeControllerTest {
         assertFalse(response.getBody().userLiked());
         assertFalse(response.getBody().userDisliked());
     }
+
+    @Test
+    void getRecipeStats_WhenUserNotAuthenticated_ShouldReturnStatsWithoutUserStatus() {
+        when(userService.getCurrentUserId()).thenThrow(new RuntimeException("User not authenticated"));
+
+        LikeStatsDto statsWithoutUser = new LikeStatsDto(10L, 3L, false, false);
+        when(likeService.getLikeStats(null, 1L)).thenReturn(statsWithoutUser);
+
+        ResponseEntity<LikeStatsDto> response = likeController.getRecipeStats(1L);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(statsWithoutUser, response.getBody());
+        assertEquals(10L, response.getBody().likesCount());
+        assertEquals(3L, response.getBody().dislikesCount());
+        assertFalse(response.getBody().userLiked());
+        assertFalse(response.getBody().userDisliked());
+
+        verify(userService).getCurrentUserId();
+        verify(likeService).getLikeStats(null, 1L);
+    }
 }

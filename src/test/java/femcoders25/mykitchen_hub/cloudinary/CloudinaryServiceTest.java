@@ -1,7 +1,6 @@
 package femcoders25.mykitchen_hub.cloudinary;
 
 import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
 import femcoders25.mykitchen_hub.common.exception.InvalidImageFileException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

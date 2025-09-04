@@ -5,13 +5,16 @@ import femcoders25.mykitchen_hub.user.entity.User;
 public class UserEmailTemplates {
         public static String getUserWelcomeEmailPlainText(User user) {
                 return String.format(
-                                "Hello %s! 👋\n\n" +
-                                                "Welcome to MyKitchen Hub! 🎉\n\n" +
-                                                "We're excited to have you join our community of food lovers.\n" +
-                                                "Here you can explore recipes, share your own, and generate personalized shopping lists.\n\n"
-                                                +
-                                                "Best regards,\n" +
-                                                "MyKitchen Hub Team 🚀",
+                        """
+                                Hello %s! 👋
+                                
+                                Welcome to MyKitchen Hub! 🎉
+                                
+                                We're excited to have you join our community of food lovers.
+                                Here you can explore recipes, share your own, and generate personalized shopping lists.
+                                
+                                Best regards,
+                                MyKitchen Hub Team 🚀""",
                                 user.getUsername());
         }
 
