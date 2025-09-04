@@ -1,6 +1,5 @@
 package femcoders25.mykitchen_hub.auth.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import femcoders25.mykitchen_hub.auth.dto.AuthenticationRequest;
 import femcoders25.mykitchen_hub.auth.dto.AuthenticationResponse;
 import femcoders25.mykitchen_hub.auth.service.AuthenticationService;
@@ -36,16 +35,12 @@ class AuthControllerTest {
         private AuthController authController;
 
         private MockMvc mockMvc;
-        private ObjectMapper objectMapper;
-
-        private UserRegistrationDto validRegistrationDto;
-        private AuthenticationRequest validAuthRequest;
         private AuthenticationResponse authResponse;
-        private String jwtToken;
+        private String accessToken;
+        private String refreshToken;
 
         @BeforeEach
         void setUp() {
-                objectMapper = new ObjectMapper();
                 LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
                 validator.afterPropertiesSet();
 
@@ -54,17 +49,9 @@ class AuthControllerTest {
                                 .setValidator(validator)
                                 .build();
 
-                validRegistrationDto = new UserRegistrationDto(
-                                "testuser",
-                                "test@example.com",
-                                "password123");
-
-                validAuthRequest = new AuthenticationRequest(
-                                "testuser",
-                                "password123");
-
-                jwtToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTYxNjI0NzI5MCwiZXhwIjoxNjE2MjUwODkwfQ.signature";
-                authResponse = new AuthenticationResponse(jwtToken);
+                accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTYxNjI0NzI5MCwiZXhwIjoxNjE2MjUwODkwfQ.signature";
+                refreshToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTYxNjI0NzI5MCwiZXhwIjoxNjE2MjUwODkwfQ.refresh";
+                authResponse = new AuthenticationResponse(accessToken, refreshToken);
         }
 
         @Test
@@ -78,7 +65,8 @@ class AuthControllerTest {
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.success").value(true))
                                 .andExpect(jsonPath("$.message").value("User registered successfully"))
-                                .andExpect(jsonPath("$.data.token").value(jwtToken));
+                                .andExpect(jsonPath("$.data.accessToken").value(accessToken))
+                                .andExpect(jsonPath("$.data.refreshToken").value(refreshToken));
 
                 verify(authenticationService).register(any(UserRegistrationDto.class));
         }
@@ -124,7 +112,8 @@ class AuthControllerTest {
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.success").value(true))
                                 .andExpect(jsonPath("$.message").value("User authenticated successfully"))
-                                .andExpect(jsonPath("$.data.token").value(jwtToken));
+                                .andExpect(jsonPath("$.data.accessToken").value(accessToken))
+                                .andExpect(jsonPath("$.data.refreshToken").value(refreshToken));
 
                 verify(authenticationService).authenticate(any(AuthenticationRequest.class));
         }
@@ -140,13 +129,14 @@ class AuthControllerTest {
                         when(mockContext.getAuthentication()).thenReturn(mockAuth);
                         mockedSecurityContext.when(SecurityContextHolder::getContext).thenReturn(mockContext);
 
-                        mockMvc.perform(post("/api/auth/logout"))
+                        mockMvc.perform(post("/api/auth/logout")
+                                        .header("Authorization", "Bearer " + accessToken))
                                         .andExpect(status().isOk())
                                         .andExpect(jsonPath("$.success").value(true))
                                         .andExpect(jsonPath("$.message").value("User logged out successfully"))
                                         .andExpect(jsonPath("$.data").value("Logout successful"));
 
-                        verify(authenticationService).logout("testuser");
+                        verify(authenticationService).logout(anyString(), any());
                 }
         }
 
@@ -163,7 +153,7 @@ class AuthControllerTest {
                                         .andExpect(jsonPath("$.success").value(false))
                                         .andExpect(jsonPath("$.message").value("Authentication required"));
 
-                        verify(authenticationService, never()).logout(anyString());
+                        verify(authenticationService, never()).logout(anyString(), any());
                 }
         }
 }

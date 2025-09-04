@@ -2,11 +2,11 @@ package femcoders25.mykitchen_hub.auth.controller;
 
 import femcoders25.mykitchen_hub.auth.dto.AuthenticationRequest;
 import femcoders25.mykitchen_hub.auth.dto.AuthenticationResponse;
+import femcoders25.mykitchen_hub.auth.dto.RefreshTokenRequest;
 import femcoders25.mykitchen_hub.auth.service.AuthenticationService;
 import femcoders25.mykitchen_hub.common.dto.ApiResponse;
 import femcoders25.mykitchen_hub.user.dto.UserRegistrationDto;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Slf4j
 @RestController
@@ -72,7 +73,7 @@ public class AuthController {
     })
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<String>> logout() {
+    public ResponseEntity<ApiResponse<String>> logout(HttpServletRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || authentication.getName() == null
@@ -80,10 +81,30 @@ public class AuthController {
             return ResponseEntity.status(401).body(ApiResponse.error("Authentication required"));
         }
 
-        String username = authentication.getName();
-        log.info("Logout request for user: {}", username);
-        authenticationService.logout(username);
+        String authHeader = request.getHeader("Authorization");
+        String accessToken = null;
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            accessToken = authHeader.substring(7);
+        }
+
+        log.info("Logout request for user: {}", authentication.getName());
+        authenticationService.logout(accessToken, null);
 
         return ResponseEntity.ok(ApiResponse.success("User logged out successfully", "Logout successful"));
+    }
+
+    @Operation(summary = "Refresh access token", description = "Generates new access and refresh tokens using a valid refresh token")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Token refreshed successfully", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid refresh token", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Refresh token expired or invalid", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+    })
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Refresh token request", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = RefreshTokenRequest.class)))
+    @PostMapping("/refresh")
+    public ResponseEntity<ApiResponse<AuthenticationResponse>> refreshToken(
+            @Valid @RequestBody RefreshTokenRequest request) {
+        log.info("Refresh token request");
+        AuthenticationResponse response = authenticationService.refreshToken(request);
+        return ResponseEntity.ok(ApiResponse.success("Token refreshed successfully", response));
     }
 }

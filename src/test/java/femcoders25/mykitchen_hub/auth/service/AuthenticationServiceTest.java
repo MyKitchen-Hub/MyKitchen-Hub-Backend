@@ -35,13 +35,17 @@ class AuthenticationServiceTest {
         @Mock
         private AuthenticationManager authenticationManager;
 
+        @Mock
+        private TokenBlacklistService tokenBlacklistService;
+
         @InjectMocks
         private AuthenticationService authenticationService;
 
         private UserRegistrationDto validRegistrationDto;
         private AuthenticationRequest validAuthRequest;
         private User createdUser;
-        private String jwtToken;
+        private String accessToken;
+        private String refreshToken;
 
         @BeforeEach
         void setUp() {
@@ -61,21 +65,25 @@ class AuthenticationServiceTest {
                 createdUser.setPassword("encodedPassword");
                 createdUser.setRole(Role.USER);
 
-                jwtToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTYxNjI0NzI5MCwiZXhwIjoxNjE2MjUwODkwfQ.signature";
+                accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTYxNjI0NzI5MCwiZXhwIjoxNjE2MjUwODkwfQ.signature";
+                refreshToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTYxNjI0NzI5MCwiZXhwIjoxNjE2MjUwODkwfQ.refresh";
         }
 
         @Test
         void register_Success() {
                 when(userService.createUser(validRegistrationDto)).thenReturn(createdUser);
-                when(jwtService.generateToken(createdUser)).thenReturn(jwtToken);
+                when(jwtService.generateToken(createdUser)).thenReturn(accessToken);
+                when(jwtService.generateRefreshToken(createdUser)).thenReturn(refreshToken);
 
                 AuthenticationResponse response = authenticationService.register(validRegistrationDto);
 
                 assertNotNull(response);
-                assertEquals(jwtToken, response.token());
+                assertEquals(accessToken, response.accessToken());
+                assertEquals(refreshToken, response.refreshToken());
 
                 verify(userService).createUser(validRegistrationDto);
                 verify(jwtService).generateToken(createdUser);
+                verify(jwtService).generateRefreshToken(createdUser);
         }
 
         @Test
@@ -84,18 +92,21 @@ class AuthenticationServiceTest {
                                 .thenReturn(null);
                 when(userService.findByUsername(validAuthRequest.username()))
                                 .thenReturn(Optional.of(createdUser));
-                when(jwtService.generateToken(createdUser)).thenReturn(jwtToken);
+                when(jwtService.generateToken(createdUser)).thenReturn(accessToken);
+                when(jwtService.generateRefreshToken(createdUser)).thenReturn(refreshToken);
 
                 AuthenticationResponse response = authenticationService.authenticate(validAuthRequest);
 
                 assertNotNull(response);
-                assertEquals(jwtToken, response.token());
+                assertEquals(accessToken, response.accessToken());
+                assertEquals(refreshToken, response.refreshToken());
 
                 verify(authenticationManager).authenticate(
                                 argThat(token -> token.getPrincipal().equals(validAuthRequest.username()) &&
                                                 token.getCredentials().equals(validAuthRequest.password())));
                 verify(userService).findByUsername(validAuthRequest.username());
                 verify(jwtService).generateToken(createdUser);
+                verify(jwtService).generateRefreshToken(createdUser);
         }
 
         @Test
@@ -115,8 +126,12 @@ class AuthenticationServiceTest {
 
         @Test
         void logout_Success() {
-                String username = "testuser";
+                String accessToken = "test-access-token";
+                String refreshToken = "test-refresh-token";
 
-                authenticationService.logout(username);
+                authenticationService.logout(accessToken, refreshToken);
+
+                verify(tokenBlacklistService).blacklistToken(accessToken);
+                verify(tokenBlacklistService).blacklistToken(refreshToken);
         }
 }
