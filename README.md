@@ -102,13 +102,13 @@ MyKitchen Hub is a Spring Boot application that helps users optimize their cooki
 - [x] Comment entity and relationships
 - [x] Shopping list entity and relationships
 
-### 🔄 IN PROGRESS
-
 #### **Social Features**
 
 - [x] Comment system per recipe
-- [ ] Like/dislike system
+- [x] Like/dislike system
 - [x] Favorite recipes functionality
+
+### 🔄 IN PROGRESS
 
 #### **Testing & Quality**
 

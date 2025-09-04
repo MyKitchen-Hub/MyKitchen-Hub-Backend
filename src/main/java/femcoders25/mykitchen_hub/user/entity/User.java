@@ -1,6 +1,7 @@
 package femcoders25.mykitchen_hub.user.entity;
 
 import femcoders25.mykitchen_hub.comment.entity.Comment;
+import femcoders25.mykitchen_hub.like.entity.Like;
 import femcoders25.mykitchen_hub.recipe.entity.Recipe;
 import femcoders25.mykitchen_hub.shoppinglist.entity.ShoppingList;
 import jakarta.persistence.*;
@@ -50,6 +51,9 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Comment> comments;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Like> likes;
 
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
     private List<Recipe> recipes;

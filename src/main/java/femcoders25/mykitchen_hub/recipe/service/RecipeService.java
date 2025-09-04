@@ -10,6 +10,7 @@ import femcoders25.mykitchen_hub.recipe.dto.RecipeCreateDto;
 import femcoders25.mykitchen_hub.recipe.dto.RecipeListDto;
 import femcoders25.mykitchen_hub.recipe.dto.RecipeResponseDto;
 import femcoders25.mykitchen_hub.recipe.dto.RecipeUpdateDto;
+import femcoders25.mykitchen_hub.like.service.LikeService;
 import femcoders25.mykitchen_hub.recipe.dto.RecipeMapper;
 import femcoders25.mykitchen_hub.recipe.entity.Recipe;
 import femcoders25.mykitchen_hub.recipe.repository.RecipeRepository;
@@ -35,6 +36,7 @@ public class RecipeService {
     private final RecipeRepository recipeRepository;
     private final CloudinaryService cloudinaryService;
     private final ObjectMapper objectMapper;
+    private final LikeService likeService;
 
     @Transactional
     public RecipeResponseDto createRecipe(RecipeCreateDto createDto) {
@@ -43,7 +45,7 @@ public class RecipeService {
 
     @Transactional
     public RecipeResponseDto createRecipe(String title, String description, String ingredientsJson, MultipartFile image,
-            String tag) throws IOException {
+                                          String tag) throws IOException {
 
         List<IngredientDto> ingredients = parseIngredientsJson(ingredientsJson);
         RecipeCreateDto recipeCreateDto = new RecipeCreateDto(title, description, ingredients, null, tag);
@@ -64,7 +66,7 @@ public class RecipeService {
         log.info("Created recipe: {} by user: {} with image: {}",
                 savedRecipe.getTitle(), currentUser.getUsername(), imageUrl);
 
-        return RecipeMapper.toRecipeResponseDto(savedRecipe);
+        return RecipeMapper.toRecipeResponseDto(savedRecipe, likeService, currentUser.getId());
     }
 
     private List<IngredientDto> parseIngredientsJson(String ingredientsJson) {
@@ -103,14 +105,15 @@ public class RecipeService {
     @Transactional(readOnly = true)
     public Page<RecipeListDto> getAllRecipes(Pageable pageable) {
         Page<Recipe> recipePage = recipeRepository.findAll(pageable);
-        return recipePage.map(RecipeMapper::toRecipeListDto);
+        return recipePage.map(recipe -> RecipeMapper.toRecipeListDto(recipe, likeService));
     }
 
     @Transactional(readOnly = true)
     public RecipeResponseDto getRecipeById(Long id) {
         Recipe recipe = recipeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Recipe", "id", id));
-        return RecipeMapper.toRecipeResponseDto(recipe);
+        Long currentUserId = userService.getCurrentUserId();
+        return RecipeMapper.toRecipeResponseDto(recipe, likeService, currentUserId);
     }
 
     @Transactional
@@ -134,12 +137,13 @@ public class RecipeService {
         log.info("Updated recipe: {} by user: {}", updatedRecipe.getTitle(),
                 userService.getCurrentUser().getUsername());
 
-        return RecipeMapper.toRecipeResponseDto(updatedRecipe);
+        Long currentUserId = userService.getCurrentUserId();
+        return RecipeMapper.toRecipeResponseDto(updatedRecipe, likeService, currentUserId);
     }
 
     @Transactional
     public RecipeResponseDto updateRecipe(Long id, String title, String description, String ingredientsJson,
-            MultipartFile image, String tag) {
+                                          MultipartFile image, String tag) {
         log.info("Updating recipe with id: {} from multipart data", id);
 
         List<IngredientDto> ingredients = null;
@@ -195,7 +199,8 @@ public class RecipeService {
             log.info("Found {} recipes with title containing: '{}'", recipes.getTotalElements(), title);
         }
 
-        return recipes.map(RecipeMapper::toRecipeResponseDto);
+        Long currentUserId = userService.getCurrentUserId();
+        return recipes.map(recipe -> RecipeMapper.toRecipeResponseDto(recipe, likeService, currentUserId));
     }
 
     @Transactional(readOnly = true)
@@ -208,7 +213,8 @@ public class RecipeService {
             log.info("Found {} recipes with ingredient containing: '{}'", recipes.getTotalElements(), ingredient);
         }
 
-        return recipes.map(RecipeMapper::toRecipeResponseDto);
+        Long currentUserId = userService.getCurrentUserId();
+        return recipes.map(recipe -> RecipeMapper.toRecipeResponseDto(recipe, likeService, currentUserId));
     }
 
     @Transactional(readOnly = true)
@@ -221,7 +227,8 @@ public class RecipeService {
             log.info("Found {} recipes with tag containing: '{}'", recipes.getTotalElements(), tag);
         }
 
-        return recipes.map(RecipeMapper::toRecipeResponseDto);
+        Long currentUserId = userService.getCurrentUserId();
+        return recipes.map(recipe -> RecipeMapper.toRecipeResponseDto(recipe, likeService, currentUserId));
     }
 
 }

@@ -3,6 +3,8 @@ package femcoders25.mykitchen_hub.recipe.service;
 import femcoders25.mykitchen_hub.cloudinary.CloudinaryService;
 import femcoders25.mykitchen_hub.common.exception.ResourceNotFoundException;
 import femcoders25.mykitchen_hub.common.exception.UnauthorizedOperationException;
+import femcoders25.mykitchen_hub.like.dto.LikeStatsDto;
+import femcoders25.mykitchen_hub.like.service.LikeService;
 import femcoders25.mykitchen_hub.recipe.dto.*;
 import femcoders25.mykitchen_hub.recipe.entity.Recipe;
 import femcoders25.mykitchen_hub.recipe.repository.RecipeRepository;
@@ -26,6 +28,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
 class RecipeServiceTest {
@@ -38,6 +41,9 @@ class RecipeServiceTest {
 
     @Mock
     private CloudinaryService cloudinaryService;
+
+    @Mock
+    private LikeService likeService;
 
     @InjectMocks
     private RecipeService recipeService;
@@ -62,6 +68,11 @@ class RecipeServiceTest {
         createDto = new RecipeCreateDto("Test Recipe", "Test Description", List.of(), null, "Test Tag");
         updateDto = new RecipeUpdateDto("Updated Recipe", "Updated Description", List.of(), null, "Updated Tag");
         pageable = PageRequest.of(0, 10);
+
+        LikeStatsDto likeStats = new LikeStatsDto(0L, 0L, false, false);
+        lenient().when(likeService.getLikeStats(any(Long.class), any(Long.class))).thenReturn(likeStats);
+        lenient().when(likeService.getLikesCount(any(Long.class))).thenReturn(0L);
+        lenient().when(likeService.getDislikesCount(any(Long.class))).thenReturn(0L);
     }
 
     @Test

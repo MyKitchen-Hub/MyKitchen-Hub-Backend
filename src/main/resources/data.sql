@@ -130,6 +130,41 @@ INSERT INTO comments (text, recipe_id, user_id, created_at, updated_at) VALUES
 ('The meat turned out very tender, and the vegetables are crispy. Super!', 5, 4, '2024-09-01 14:20:00', '2024-09-01 14:20:00'),
 ('Simple recipe, but the result exceeded all expectations!', 5, 2, '2024-09-02 16:50:00', '2024-09-02 16:50:00');
 
+-- Likes for Spaghetti Carbonara 
+INSERT INTO likes (user_id, recipe_id, is_like, created_at) VALUES
+(2, 1, true, '2024-08-30 15:00:00'),   
+(3, 1, false, '2024-09-02 14:00:00'),  
+(4, 1, true, '2024-08-31 10:00:00'),   
+(1, 1, true, '2024-09-01 12:00:00');   
+
+-- Likes for Chicken Tikka Masala 
+INSERT INTO likes (user_id, recipe_id, is_like, created_at) VALUES
+(1, 2, true, '2024-08-31 17:00:00'),   
+(3, 2, false, '2024-09-02 16:00:00'), 
+(4, 2, true, '2024-09-01 15:30:00'),  
+(2, 2, true, '2024-09-02 09:00:00');  
+
+-- Likes for Chocolate Chip Cookies
+INSERT INTO likes (user_id, recipe_id, is_like, created_at) VALUES
+(2, 3, true, '2024-08-31 12:00:00'),  
+(4, 3, true, '2024-09-01 16:00:00'),  
+(1, 3, false, '2024-09-02 10:00:00'), 
+(3, 3, true, '2024-09-02 18:00:00');   
+
+-- Likes for Caesar Salad 
+INSERT INTO likes (user_id, recipe_id, is_like, created_at) VALUES
+(1, 4, true, '2024-08-30 14:00:00'),   
+(2, 4, false, '2024-09-02 20:00:00'),  
+(3, 4, true, '2024-09-01 18:00:00'),   
+(4, 4, true, '2024-09-02 12:00:00');   
+
+-- Likes for Beef Stir Fry 
+INSERT INTO likes (user_id, recipe_id, is_like, created_at) VALUES
+(1, 5, false, '2024-09-02 19:00:00'),  
+(3, 5, true, '2024-09-01 15:00:00'),   
+(4, 5, true, '2024-09-01 17:00:00'),   
+(2, 5, true, '2024-09-02 17:00:00');   
+
 -- =====================================================
 -- Notes:
 -- 1. Password for all users is 'password'

@@ -8,6 +8,8 @@ public record RecipeListDto(
         String description,
         String imageUrl,
         String tag,
+        long likesCount,
+        long dislikesCount,
         LocalDateTime createdAt,
         LocalDateTime updatedAt) {
 }
