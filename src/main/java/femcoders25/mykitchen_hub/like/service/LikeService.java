@@ -9,6 +9,7 @@ import femcoders25.mykitchen_hub.recipe.repository.RecipeRepository;
 import femcoders25.mykitchen_hub.user.entity.User;
 import femcoders25.mykitchen_hub.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +18,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class LikeService {
 
     private final LikeRepository likeRepository;
@@ -58,14 +60,23 @@ public class LikeService {
 
     public LikeStatsDto getLikeStats(Long userId, Long recipeId) {
         Recipe recipe = getRecipeById(recipeId);
-        User user = getUserById(userId);
 
         long likesCount = likeRepository.countLikesByRecipe(recipe);
         long dislikesCount = likeRepository.countDislikesByRecipe(recipe);
 
-        Optional<Like> userLike = likeRepository.findByUserAndRecipe(user, recipe);
-        boolean userLiked = userLike.isPresent() && userLike.get().getIsLike();
-        boolean userDisliked = userLike.isPresent() && !userLike.get().getIsLike();
+        boolean userLiked = false;
+        boolean userDisliked = false;
+
+        if (userId != null) {
+            try {
+                User user = getUserById(userId);
+                Optional<Like> userLike = likeRepository.findByUserAndRecipe(user, recipe);
+                userLiked = userLike.isPresent() && userLike.get().getIsLike();
+                userDisliked = userLike.isPresent() && !userLike.get().getIsLike();
+            } catch (ResourceNotFoundException e) {
+                log.debug("User not found for like stats: {}", userId);
+            }
+        }
 
         return new LikeStatsDto(likesCount, dislikesCount, userLiked, userDisliked);
     }

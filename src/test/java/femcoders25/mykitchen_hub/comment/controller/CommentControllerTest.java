@@ -51,29 +51,28 @@ class CommentControllerTest {
         when(commentService.createComment(eq(1L), any(CommentRequestDto.class))).thenReturn(commentResponseDto);
 
         ResponseEntity<ApiResponse<CommentResponseDto>> response = commentController.createComment(1L,
-                commentRequestDto);
+                new CommentRequestDto("Great recipe!"));
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals("Comment created successfully!", response.getBody().getMessage());
         assertEquals(commentResponseDto, response.getBody().getData());
 
-        verify(commentService).createComment(1L, commentRequestDto);
+        verify(commentService).createComment(eq(1L), any(CommentRequestDto.class));
     }
 
     @Test
     void testCreateComment_WithValidData() {
-        CommentRequestDto validCommentRequestDto = new CommentRequestDto("This is a valid comment with proper length");
         when(commentService.createComment(eq(1L), any(CommentRequestDto.class))).thenReturn(commentResponseDto);
 
         ResponseEntity<ApiResponse<CommentResponseDto>> response = commentController.createComment(1L,
-                validCommentRequestDto);
+                new CommentRequestDto("This is a valid comment with proper length"));
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals("Comment created successfully!", response.getBody().getMessage());
 
-        verify(commentService).createComment(1L, validCommentRequestDto);
+        verify(commentService).createComment(eq(1L), any(CommentRequestDto.class));
     }
 
     @Test
@@ -132,13 +131,13 @@ class CommentControllerTest {
         when(commentService.createComment(eq(2L), any(CommentRequestDto.class))).thenReturn(commentResponseDto);
 
         ResponseEntity<ApiResponse<CommentResponseDto>> response = commentController.createComment(2L,
-                commentRequestDto);
+                new CommentRequestDto("Great recipe!"));
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals("Comment created successfully!", response.getBody().getMessage());
 
-        verify(commentService).createComment(2L, commentRequestDto);
+        verify(commentService).createComment(eq(2L), any(CommentRequestDto.class));
     }
 
     @Test

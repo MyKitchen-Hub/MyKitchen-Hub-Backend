@@ -74,7 +74,7 @@ class AuthControllerTest {
 
                 mockMvc.perform(post("/api/auth/register")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(validRegistrationDto)))
+                                .content("{\"username\":\"testuser\",\"email\":\"test@example.com\",\"password\":\"password123\"}"))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.success").value(true))
                                 .andExpect(jsonPath("$.message").value("User registered successfully"))
@@ -85,14 +85,9 @@ class AuthControllerTest {
 
         @Test
         void register_WithInvalidUsername_ReturnsBadRequest() throws Exception {
-                UserRegistrationDto invalidDto = new UserRegistrationDto(
-                                "ab",
-                                "test@example.com",
-                                "password123");
-
                 mockMvc.perform(post("/api/auth/register")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(invalidDto)))
+                                .content("{\"username\":\"ab\",\"email\":\"test@example.com\",\"password\":\"password123\"}"))
                                 .andExpect(status().isBadRequest());
 
                 verify(authenticationService, never()).register(any());
@@ -100,14 +95,9 @@ class AuthControllerTest {
 
         @Test
         void register_WithInvalidEmail_ReturnsBadRequest() throws Exception {
-                UserRegistrationDto invalidDto = new UserRegistrationDto(
-                                "testuser",
-                                "invalid-email",
-                                "password123");
-
                 mockMvc.perform(post("/api/auth/register")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(invalidDto)))
+                                .content("{\"username\":\"testuser\",\"email\":\"invalid-email\",\"password\":\"password123\"}"))
                                 .andExpect(status().isBadRequest());
 
                 verify(authenticationService, never()).register(any());
@@ -115,14 +105,9 @@ class AuthControllerTest {
 
         @Test
         void register_WithInvalidPassword_ReturnsBadRequest() throws Exception {
-                UserRegistrationDto invalidDto = new UserRegistrationDto(
-                                "testuser",
-                                "test@example.com",
-                                "123");
-
                 mockMvc.perform(post("/api/auth/register")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(invalidDto)))
+                                .content("{\"username\":\"testuser\",\"email\":\"test@example.com\",\"password\":\"123\"}"))
                                 .andExpect(status().isBadRequest());
 
                 verify(authenticationService, never()).register(any());
@@ -135,7 +120,7 @@ class AuthControllerTest {
 
                 mockMvc.perform(post("/api/auth/login")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(validAuthRequest)))
+                                .content("{\"username\":\"testuser\",\"password\":\"password123\"}"))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.success").value(true))
                                 .andExpect(jsonPath("$.message").value("User authenticated successfully"))

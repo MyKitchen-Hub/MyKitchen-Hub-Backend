@@ -39,7 +39,7 @@ public class RecipeController {
 
         private final RecipeService recipeService;
 
-        @Operation(summary = "Create a new recipe", description = "Creates a new recipe with optional image upload. Use multipart/form-data for file upload. Ingredients must be provided as a valid JSON array string, e.g., [{\"name\":\"Flour\",\"amount\":200,\"unit\":\"g\"},{\"name\":\"Sugar\",\"amount\":100,\"unit\":\"g\"}]")
+        @Operation(summary = "Create a new recipe", description = "Creates a new recipe with optional image upload using form fields. All fields are displayed as input fields in Swagger UI.")
         @ApiResponses(value = {
                         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Recipe created successfully", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
                         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input data or file", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
@@ -49,11 +49,11 @@ public class RecipeController {
         @PostMapping(consumes = "multipart/form-data")
         @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
         public ResponseEntity<ApiResponse<RecipeResponseDto>> createRecipe(
-                        @Parameter(description = "Recipe title", required = true) @RequestParam("title") @NotBlank(message = "Title is required") @Size(min = 3, max = 100, message = "Title must be between 3 and 100 characters") String title,
-                        @Parameter(description = "Recipe description", required = true) @RequestParam("description") @NotBlank(message = "Description is required") @Size(min = 10, max = 2000, message = "Description must be between 10 and 2000 characters") String description,
-                        @Parameter(description = "Ingredients as JSON string. Example: [{\"name\":\"Flour\",\"amount\":200,\"unit\":\"g\"},{\"name\":\"Sugar\",\"amount\":100,\"unit\":\"g\"}]", required = true, example = "[{\"name\":\"Flour\",\"amount\":200,\"unit\":\"g\"},{\"name\":\"Sugar\",\"amount\":100,\"unit\":\"g\"}]", schema = @Schema(type = "string", format = "json", example = "[{\"name\":\"Flour\",\"amount\":200,\"unit\":\"g\"},{\"name\":\"Sugar\",\"amount\":100,\"unit\":\"g\"}]")) @RequestParam("ingredients") @NotBlank(message = "Ingredients are required") String ingredients,
-                        @Parameter(description = "Recipe image file (optional)") @RequestParam(value = "image", required = false) MultipartFile image,
-                        @Parameter(description = "Recipe tag (optional)") @RequestParam(value = "tag", required = false) String tag)
+                        @Parameter(description = "Recipe title (3-100 characters)", required = true, example = "Chocolate Cake") @RequestParam("title") @NotBlank(message = "Title is required") @Size(min = 3, max = 100, message = "Title must be between 3 and 100 characters") String title,
+                        @Parameter(description = "Recipe description (10-2000 characters)", required = true, example = "A delicious homemade chocolate cake recipe") @RequestParam("description") @NotBlank(message = "Description is required") @Size(min = 10, max = 2000, message = "Description must be between 10 and 2000 characters") String description,
+                        @Parameter(description = "Ingredients as JSON string. Example: [{\"name\":\"Flour\",\"amount\":200,\"unit\":\"g\"},{\"name\":\"Sugar\",\"amount\":100,\"unit\":\"g\"}]", required = true, example = "[{\"name\":\"Flour\",\"amount\":200,\"unit\":\"g\"},{\"name\":\"Sugar\",\"amount\":100,\"unit\":\"g\"}]") @RequestParam("ingredients") @NotBlank(message = "Ingredients are required") String ingredients,
+                        @Parameter(description = "Recipe image file (optional)", schema = @Schema(type = "string", format = "binary")) @RequestParam(value = "image", required = false) MultipartFile image,
+                        @Parameter(description = "Recipe tag (optional)", example = "dessert") @RequestParam(value = "tag", required = false) String tag)
                         throws IOException {
 
                 log.info("Creating new recipe: {}", title);
@@ -110,7 +110,7 @@ public class RecipeController {
                 return ResponseEntity.ok(ApiResponse.success("Recipe retrieved successfully", recipe));
         }
 
-        @Operation(summary = "Update recipe", description = "Updates an existing recipe with optional image upload using multipart/form-data")
+        @Operation(summary = "Update recipe", description = "Updates an existing recipe with optional image upload using form fields. All fields are displayed as input fields in Swagger UI.")
         @ApiResponses(value = {
                         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Recipe updated successfully", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
                         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input data or file", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
@@ -122,11 +122,11 @@ public class RecipeController {
         @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
         public ResponseEntity<ApiResponse<RecipeResponseDto>> updateRecipe(
                         @Parameter(description = "Recipe ID") @PathVariable Long id,
-                        @Parameter(description = "Recipe title (optional)") @RequestParam(value = "title", required = false) @Size(min = 3, max = 100, message = "Title must be between 3 and 100 characters") String title,
-                        @Parameter(description = "Recipe description (optional)") @RequestParam(value = "description", required = false) @Size(min = 10, max = 2000, message = "Description must be between 10 and 2000 characters") String description,
-                        @Parameter(description = "Recipe ingredients as JSON string (optional)", example = "[{\"name\":\"Flour\",\"amount\":300,\"unit\":\"g\"}]", schema = @Schema(type = "string")) @RequestParam(value = "ingredients", required = false) String ingredients,
-                        @Parameter(description = "Recipe image file (optional)") @RequestParam(value = "image", required = false) MultipartFile image,
-                        @Parameter(description = "Recipe tag (optional)") @RequestParam(value = "tag", required = false) String tag)
+                        @Parameter(description = "Recipe title (optional, 3-100 characters)", example = "Updated Chocolate Cake") @RequestParam(value = "title", required = false) @Size(min = 3, max = 100, message = "Title must be between 3 and 100 characters") String title,
+                        @Parameter(description = "Recipe description (optional, 10-2000 characters)", example = "An updated delicious homemade chocolate cake recipe") @RequestParam(value = "description", required = false) @Size(min = 10, max = 2000, message = "Description must be between 10 and 2000 characters") String description,
+                        @Parameter(description = "Recipe ingredients as JSON string (optional)", example = "[{\"name\":\"Flour\",\"amount\":300,\"unit\":\"g\"}]") @RequestParam(value = "ingredients", required = false) String ingredients,
+                        @Parameter(description = "Recipe image file (optional)", schema = @Schema(type = "string", format = "binary")) @RequestParam(value = "image", required = false) MultipartFile image,
+                        @Parameter(description = "Recipe tag (optional)", example = "dessert") @RequestParam(value = "tag", required = false) String tag)
                         throws IOException {
 
                 log.info("Updating recipe with id: {}", id);

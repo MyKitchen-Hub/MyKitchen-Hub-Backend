@@ -45,7 +45,7 @@ public class RecipeService {
 
     @Transactional
     public RecipeResponseDto createRecipe(String title, String description, String ingredientsJson, MultipartFile image,
-                                          String tag) throws IOException {
+            String tag) throws IOException {
 
         List<IngredientDto> ingredients = parseIngredientsJson(ingredientsJson);
         RecipeCreateDto recipeCreateDto = new RecipeCreateDto(title, description, ingredients, null, tag);
@@ -112,7 +112,7 @@ public class RecipeService {
     public RecipeResponseDto getRecipeById(Long id) {
         Recipe recipe = recipeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Recipe", "id", id));
-        Long currentUserId = userService.getCurrentUserId();
+        Long currentUserId = userService.getCurrentUserIdOptional().orElse(null);
         return RecipeMapper.toRecipeResponseDto(recipe, likeService, currentUserId);
     }
 
@@ -143,7 +143,7 @@ public class RecipeService {
 
     @Transactional
     public RecipeResponseDto updateRecipe(Long id, String title, String description, String ingredientsJson,
-                                          MultipartFile image, String tag) {
+            MultipartFile image, String tag) {
         log.info("Updating recipe with id: {} from multipart data", id);
 
         List<IngredientDto> ingredients = null;
@@ -199,7 +199,7 @@ public class RecipeService {
             log.info("Found {} recipes with title containing: '{}'", recipes.getTotalElements(), title);
         }
 
-        Long currentUserId = userService.getCurrentUserId();
+        Long currentUserId = userService.getCurrentUserIdOptional().orElse(null);
         return recipes.map(recipe -> RecipeMapper.toRecipeResponseDto(recipe, likeService, currentUserId));
     }
 
@@ -213,7 +213,7 @@ public class RecipeService {
             log.info("Found {} recipes with ingredient containing: '{}'", recipes.getTotalElements(), ingredient);
         }
 
-        Long currentUserId = userService.getCurrentUserId();
+        Long currentUserId = userService.getCurrentUserIdOptional().orElse(null);
         return recipes.map(recipe -> RecipeMapper.toRecipeResponseDto(recipe, likeService, currentUserId));
     }
 
@@ -227,7 +227,7 @@ public class RecipeService {
             log.info("Found {} recipes with tag containing: '{}'", recipes.getTotalElements(), tag);
         }
 
-        Long currentUserId = userService.getCurrentUserId();
+        Long currentUserId = userService.getCurrentUserIdOptional().orElse(null);
         return recipes.map(recipe -> RecipeMapper.toRecipeResponseDto(recipe, likeService, currentUserId));
     }
 

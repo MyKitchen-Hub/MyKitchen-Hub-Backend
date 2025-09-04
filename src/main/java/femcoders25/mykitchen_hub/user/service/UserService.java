@@ -162,6 +162,25 @@ public class UserService {
         return getCurrentUser().getId();
     }
 
+    public Optional<User> getCurrentUserOptional() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || !authentication.isAuthenticated() ||
+                    "anonymousUser".equals(authentication.getName())) {
+                return Optional.empty();
+            }
+            String username = authentication.getName();
+            return findByUsername(username);
+        } catch (Exception e) {
+            log.debug("No authenticated user found: {}", e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    public Optional<Long> getCurrentUserIdOptional() {
+        return getCurrentUserOptional().map(User::getId);
+    }
+
     private boolean isCurrentUserAdmin() {
         try {
             User currentUser = getCurrentUser();

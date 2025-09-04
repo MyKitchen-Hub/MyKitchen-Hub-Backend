@@ -115,7 +115,7 @@ MyKitchen Hub is a Spring Boot application that helps users optimize their cooki
 - [ ] Unit tests (target: 70% coverage)
 - [ ] Integration tests
 - [ ] Security tests
-- [ ] API documentation with Swagger
+- [x] API documentation with Swagger
 
 #### **DevOps & Deployment**
 

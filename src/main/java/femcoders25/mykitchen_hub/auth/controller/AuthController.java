@@ -6,6 +6,7 @@ import femcoders25.mykitchen_hub.auth.service.AuthenticationService;
 import femcoders25.mykitchen_hub.common.dto.ApiResponse;
 import femcoders25.mykitchen_hub.user.dto.UserRegistrationDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -31,12 +32,15 @@ public class AuthController {
 
     private final AuthenticationService authenticationService;
 
-    @Operation(summary = "Register a new user", description = "Creates a new user account and returns authentication token")
+    @Operation(summary = "Register a new user", description = "Creates a new user account and returns authentication token. "
+            +
+            "Username must be 3-50 characters, email must be valid, password must be at least 6 characters.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "User registered successfully", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input data", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "User already exists", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     })
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "User registration data", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserRegistrationDto.class), examples = @io.swagger.v3.oas.annotations.media.ExampleObject(name = "Valid registration", value = "{\"username\":\"john_doe\",\"email\":\"john@example.com\",\"password\":\"password123\"}")))
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<AuthenticationResponse>> register(
             @Valid @RequestBody UserRegistrationDto request) {
@@ -45,12 +49,14 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success("User registered successfully", response));
     }
 
-    @Operation(summary = "Authenticate user", description = "Logs in a user and returns authentication token")
+    @Operation(summary = "Authenticate user", description = "Logs in a user and returns authentication token. " +
+            "Provide valid username and password to receive JWT token.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "User authenticated successfully", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid credentials", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Authentication failed", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     })
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "User login credentials", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthenticationRequest.class), examples = @io.swagger.v3.oas.annotations.media.ExampleObject(name = "Valid login", value = "{\"username\":\"john_doe\",\"password\":\"password123\"}")))
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthenticationResponse>> authenticate(
             @Valid @RequestBody AuthenticationRequest request) {

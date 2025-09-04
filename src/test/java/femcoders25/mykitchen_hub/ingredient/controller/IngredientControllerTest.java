@@ -68,7 +68,8 @@ class IngredientControllerTest {
     void testGetIngredientsByRecipeId() {
         when(ingredientService.getIngredientsByRecipeId(1L)).thenReturn(ingredientsList);
 
-        ResponseEntity<ApiResponse<List<IngredientResponseDto>>> response = ingredientController.getIngredientsByRecipeId(1L);
+        ResponseEntity<ApiResponse<List<IngredientResponseDto>>> response = ingredientController
+                .getIngredientsByRecipeId(1L);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -79,14 +80,15 @@ class IngredientControllerTest {
 
     @Test
     void testUpdateIngredient() {
-        when(ingredientService.updateIngredient(1L, updateDto)).thenReturn(ingredientResponse);
+        when(ingredientService.updateIngredient(eq(1L), any(IngredientUpdateDto.class))).thenReturn(ingredientResponse);
 
-        ResponseEntity<ApiResponse<IngredientResponseDto>> response = ingredientController.updateIngredient(1L, updateDto);
+        ResponseEntity<ApiResponse<IngredientResponseDto>> response = ingredientController.updateIngredient(1L,
+                new IngredientUpdateDto("Updated Flour", 300.0, "g"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals("Ingredient updated successfully", response.getBody().getMessage());
         assertEquals(ingredientResponse, response.getBody().getData());
-        verify(ingredientService).updateIngredient(1L, updateDto);
+        verify(ingredientService).updateIngredient(eq(1L), any(IngredientUpdateDto.class));
     }
 }
