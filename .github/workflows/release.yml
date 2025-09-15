@@ -38,19 +38,22 @@ jobs:
       # Step 4: Run full test suite before creating release
       # Ensures the tagged version passes all tests using H2 in-memory database
       - name: Run tests
-        run: ./mvnw test
+        run: ./mvnw test -Dspring.profiles.active=test
         env:
-          DB_URL: jdbc:h2:mem:testdb
+          # These environment variables will override the test properties if needed
+          DB_URL: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
           DB_USERNAME: sa
           DB_PASSWORD:
-          JWT_SECRET: test-secret-key-for-testing-purposes-only
-          JWT_EXPIRATION: 86400000
+          JWT_SECRET: testSecretKeyForTestingPurposesOnly12345678901234567890
+          JWT_EXPIRATION: 3600000
           JWT_REFRESH_EXPIRATION: 604800000
           EMAIL: test@example.com
           EMAIL_PASSWORD: testpassword
-          CLOUDINARY_CLOUD_NAME: test
-          CLOUDINARY_API_KEY: test
-          CLOUDINARY_API_SECRET: test
+          CLOUDINARY_CLOUD_NAME: test-cloud
+          CLOUDINARY_API_KEY: test-api-key
+          CLOUDINARY_API_SECRET: test-api-secret
+          SERVER_PORT: 0
+          SHOW_SQL: false
 
       # Step 5: Build the Spring Boot application with Maven
       # Creates the production JAR file for Docker image
