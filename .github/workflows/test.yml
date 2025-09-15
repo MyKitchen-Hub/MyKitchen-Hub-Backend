@@ -22,7 +22,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: "21"
-          distribution: "eclipse-temurin"
+          distribution: "temurin"
 
       # Step 3: Cache Maven dependencies for faster builds
       # Reduces build time by reusing downloaded dependencies
