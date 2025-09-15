@@ -8,16 +8,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: testpassword
-          MYSQL_DATABASE: mykitchen_hub_test
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-
     steps:
       - uses: actions/checkout@v4
 
@@ -37,9 +27,9 @@ jobs:
       - name: Run unit tests
         run: ./mvnw test
         env:
-          DB_URL: jdbc:mysql://localhost:3306/mykitchen_hub_test
-          DB_USERNAME: root
-          DB_PASSWORD: testpassword
+          DB_URL: jdbc:h2:mem:testdb
+          DB_USERNAME: sa
+          DB_PASSWORD:
           JWT_SECRET: test-secret-key-for-testing-purposes-only
           JWT_EXPIRATION: 86400000
           JWT_REFRESH_EXPIRATION: 604800000
