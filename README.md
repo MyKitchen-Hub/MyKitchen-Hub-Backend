@@ -501,7 +501,7 @@ docker build -t mykitchen-hub .
 - [x] Automated testing and building
 - [x] Docker Hub integration
 
-## **CI/CD Pipeline** 🚀
+## **CI/CD Pipeline** �
 
 This project includes a comprehensive CI/CD pipeline using GitHub Actions with three main workflows:
 
@@ -584,9 +584,9 @@ This project includes a comprehensive CI/CD pipeline using GitHub Actions with t
   ✅ Create Release
 ```
 
-### **Docker Hub Integration** 🐳
+### **Docker Hub Integration**
 
-**Repository:** `your-dockerhub-username/mykitchen_hub`
+You can view our project on DockerHub: [tizzifona/mykitchen_hub](https://hub.docker.com/r/tizzifona/mykitchen_hub)
 
 **Available Tags:**
 
@@ -598,7 +598,7 @@ This project includes a comprehensive CI/CD pipeline using GitHub Actions with t
 **Pull Command:**
 
 ```bash
-docker pull your-dockerhub-username/mykitchen_hub:latest
+docker pull tizzifona/mykitchen_hub
 ```
 
 ### **Required GitHub Secrets**
@@ -634,7 +634,7 @@ docker run -p 8080:8080 mykitchen-hub:local
 
 **Note:** All pull requests will automatically trigger the CI pipeline for testing and validation.
 
-## **Future Features** 🚀
+## **Future Features** 
 
 ### **Frontend Development**
 
