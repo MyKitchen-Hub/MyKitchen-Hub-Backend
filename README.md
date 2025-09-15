@@ -2,6 +2,26 @@
 
 A comprehensive digital solution for recipe management, automated shopping list creation, and social cooking interaction. This Spring Boot application helps users organize their cooking, reduce food waste, and share culinary experiences through a modern REST API.
 
+## 📑 Table of Contents
+
+- [Project Overview](#project-overview)
+- [Architecture & Technology Stack](#architecture--technology-stack)
+- [Project Structure](#-project-structure)
+- [Database Schema](#-database-schema)
+- [API Endpoints](#-api-endpoints)
+- [Testing](#testing)
+- [Getting Started](#-getting-started)
+- [API Documentation](#api-documentation)
+- [Docker Configuration](#-docker-configuration)
+- [Configuration](#configuration)
+- [Performance & Monitoring](#performance--monitoring)
+- [Completed Features](#completed-features)
+- [CI/CD Pipeline](#cicd-pipeline-)
+- [Future Features](#future-features-)
+- [Contributing](#contributing)
+- [License](#license)
+- [Team](#team)
+
 ## Project Overview
 
 MyKitchen Hub is a full-featured recipe management platform that enables users to:
@@ -24,9 +44,9 @@ MyKitchen Hub is a full-featured recipe management platform that enables users t
 ![Maven](https://img.shields.io/badge/apachemaven-C71A36.svg?style=for-the-badge&logo=apachemaven&logoColor=white)
 ![Cloudinary](https://img.shields.io/badge/Cloudinary-3448C5?style=for-the-badge&logo=Cloudinary&logoColor=white)
 ![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white)
+
 - **Email**: Spring Mail with Gmail SMTP
 - **PDF Generation**: Apache PDFBox
-
 
 ### **Key Dependencies**
 
@@ -68,6 +88,7 @@ src/main/java/femcoders25/mykitchen_hub/
 ```
 
 ## 🗄️ **Database Schema**
+
 [![temp-Imagew-Fdp3r.avif](https://i.postimg.cc/K4S078bC/temp-Imagew-Fdp3r.avif)](https://postimg.cc/0KnGPxbC)
 
 ### **Core Entities**
@@ -94,7 +115,7 @@ src/main/java/femcoders25/mykitchen_hub/
 - Recipe → Favorites (One-to-Many)
 - User → Favorites (One-to-Many)
 
-##  **API Endpoints**
+## **API Endpoints**
 
 ### **Authentication** (`/api/auth`)
 
@@ -148,7 +169,7 @@ src/main/java/femcoders25/mykitchen_hub/
 ### **Test Coverage**
 
 - Unit tests for all service layers
-- Integration tests 
+- Integration tests
 - Controller tests with MockMvc
 - Security tests for authentication
 - Email service tests
@@ -164,7 +185,7 @@ mvn test
 mvn test -Dtest=RecipeServiceTest
 ```
 
-##  **Getting Started**
+## **Getting Started**
 
 ### **Prerequisites**
 
@@ -248,7 +269,7 @@ Once the application is running, access the Swagger UI at:
 - **Swagger UI**: http://localhost:8080/swagger-ui.html
 - **API Docs**: http://localhost:8080/api-docs
 
-##  **Docker Configuration**
+## **Docker Configuration**
 
 ### **Dockerfile Details**
 
@@ -476,14 +497,170 @@ docker build -t mykitchen-hub .
 - [x] Maven build configuration
 - [x] Environment variable management
 - [x] Logging configuration
+- [x] GitHub Actions CI/CD pipeline
+- [x] Automated testing and building
+- [x] Docker Hub integration
 
-## **Contributing**
+## **CI/CD Pipeline** 🚀
 
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open Pull Request
+This project includes a comprehensive CI/CD pipeline using GitHub Actions with three main workflows:
+
+### **1. Build Workflow** (`.github/workflows/build.yml`)
+
+**Triggers:**
+
+- Push to `main` or `develop` branches
+- Pull requests to `main` or `develop` branches
+
+**Features:**
+
+- ✅ Java 21 setup with Eclipse Temurin
+- ✅ Maven dependency caching for faster builds
+- ✅ Application compilation and JAR packaging
+- ✅ Build artifact upload for deployment
+
+
+```
+✅ Build Application
+  ✅ Checkout code
+  ✅ Set up JDK 21
+  ✅ Cache Maven dependencies
+  ✅ Build with Maven
+  ✅ Build JAR
+  ✅ Upload build artifacts
+```
+
+### **2. Test Workflow** (`.github/workflows/test.yml`)
+
+**Triggers:**
+
+- Push to `main` or `develop` branches
+- Pull requests to `main` or `develop` branches
+
+**Features:**
+
+- ✅ MySQL 8.0 service for integration testing
+- ✅ Unit and integration test execution
+- ✅ Test report generation with JUnit format
+- ✅ Test result artifacts upload
+- ✅ Database health checks
+
+```
+✅ Test Application
+  ✅ Checkout code
+  ✅ Set up JDK 21
+  ✅ Cache Maven dependencies
+  ✅ Start MySQL service
+  ✅ Run unit tests
+  ✅ Generate test report
+  ✅ Upload test results
+```
+
+### **3. Release Workflow** (`.github/workflows/release.yml`)
+
+**Triggers:**
+
+- Git tags starting with 'v' (e.g., v1.0.0)
+- Manual workflow dispatch
+
+**Features:**
+
+- ✅ Multi-platform Docker builds (linux/amd64, linux/arm64)
+- ✅ Docker Hub integration with automated login
+- ✅ Semantic versioning support
+- ✅ GitHub releases creation
+- ✅ Build cache optimization
+- ✅ Docker image metadata and labels
+
+```
+✅ Release and Deploy
+  ✅ Checkout code
+  ✅ Set up JDK 21
+  ✅ Build application
+  ✅ Set up Docker Buildx
+  ✅ Log in to Docker Hub
+  ✅ Extract metadata
+  ✅ Build and push Docker image
+  ✅ Create Release
+```
+
+### **Docker Hub Integration** 🐳
+
+**Repository:** `your-dockerhub-username/mykitchen_hub`
+
+**Available Tags:**
+
+- `latest` - Latest stable release
+- `v1.0.0` - Specific version tags
+- `main` - Latest from main branch
+- `develop` - Latest from develop branch
+
+**Pull Command:**
+
+```bash
+docker pull your-dockerhub-username/mykitchen_hub:latest
+```
+
+### **Required GitHub Secrets**
+
+To enable the CI/CD pipeline, configure these secrets in your GitHub repository:
+
+1. **DOCKER_USERNAME** - Your Docker Hub username
+2. **DOCKER_PASSWORD** - Your Docker Hub access token
+
+**How to set up secrets:**
+
+1. Go to your GitHub repository
+2. Navigate to Settings → Secrets and variables → Actions
+3. Click "New repository secret"
+4. Add the required secrets
+
+### **Local Development with CI**
+
+**Pre-commit checks:**
+
+```bash
+# Run the same checks as CI locally
+./mvnw clean compile test package
+```
+
+**Docker build test:**
+
+```bash
+# Test Docker build locally
+docker build -t mykitchen-hub:local .
+docker run -p 8080:8080 mykitchen-hub:local
+```
+
+**Note:** All pull requests will automatically trigger the CI pipeline for testing and validation.
+
+## **Future Features** 🚀
+
+### **Frontend Development**
+
+- **Frontend part with very cute design** - Modern, responsive web interface with intuitive user experience
+
+### **Enhanced Recipe Management**
+
+- **Base of ingredients** - You will not have to create, just add it to your recipe!
+  - Comprehensive ingredient database with nutritional information
+  - Auto-complete ingredient suggestions
+
+### **Authentic Recipe Collection**
+
+- **A collection of authentic recipes from Nadiia** - Curated traditional recipes with cultural context
+- **Recipe categories by cuisine** - Italian, Mexican, Asian, Mediterranean, etc.
+
+### **Meal Planning & Nutrition**
+
+- **Weekly meal planning with nutritional analysis** - Complete meal planning solution
+  - Nutritional analysis and calorie tracking
+  - Shopping list generation from meal plans
+
+### **Social & Community Features**
+
+- **Recipe sharing and collaboration** - Share recipes with friends and family
+- **User profiles and following** - Follow favorite cooks and discover new recipes
 
 ## **License**
 
