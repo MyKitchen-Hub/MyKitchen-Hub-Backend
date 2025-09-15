@@ -13,16 +13,16 @@ services:
     # Set working directory inside container
     working_dir: /src
 
-    # Mount source code as read-only volume for testing
+    # Mount source code for testing (read-write for Maven operations)
     volumes:
       - type: bind
         source: . # Current directory (project root)
         target: /src # Mount point inside container
-        read_only: true # Prevent modifications to source code
+        read_only: false # Allow Maven to write to target directory
 
-    # Run Maven test command with test profile
-    # Using -Ptest profile to avoid building JAR files (allows read-only source mounting)
-    entrypoint: ["mvn", "-Ptest", "clean", "verify", "--no-transfer-progress"]
+    # Run Maven test command
+    # Clean, compile, and run tests
+    entrypoint: ["mvn", "clean", "test", "--no-transfer-progress"]
 
     # Custom container name for easier identification
     container_name: mykitchen-hub-test
