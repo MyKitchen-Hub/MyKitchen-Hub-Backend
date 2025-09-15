@@ -501,7 +501,7 @@ docker build -t mykitchen-hub .
 - [x] Automated testing and building
 - [x] Docker Hub integration
 
-## **CI/CD Pipeline** �
+## **CI/CD Pipeline**
 
 This project includes a comprehensive CI/CD pipeline using GitHub Actions with three main workflows:
 
